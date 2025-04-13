@@ -16,6 +16,8 @@ instance/
 env/
 venv/
 ENV/
+agrorisk_env/
+agrorisk_venv/
 
 # Database files
 *.db

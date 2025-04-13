@@ -5,13 +5,13 @@ echo "Iniciando el sistema AgroSmartRisk..."
 
 # Iniciar el mu00f3dulo principal AgroSmartRisk en segundo plano
 echo "Iniciando la aplicaciu00f3n principal AgroSmartRisk en http://localhost:5000/"
-python app.py &
+python3 app.py &
 PID_MAIN=$!
 
 # Iniciar el mu00f3dulo de anu00e1lisis de riesgos en segundo plano
 echo "Iniciando el mu00f3dulo de Anu00e1lisis de Riesgos en http://localhost:5001/"
 cd modules/risk_analysis
-python run.py &
+python3 run.py &
 PID_RISK=$!
 cd ../..
 

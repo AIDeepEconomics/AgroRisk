@@ -27,11 +27,38 @@ Esta plataforma integrada proporciona herramientas avanzadas para la gestiu00f3n
 - Statsmodels
 - SciPy
 - PyProj
+- Flask-SQLAlchemy
 
 ## Configuración
 
+### Opción 1: Entorno Virtual (Recomendado)
+
 1. Clonar el repositorio: `git clone https://github.com/AIDeepEconomics/AgroRisk.git`
-2. Instalar los paquetes requeridos: `pip install -r requirements.txt`
+2. Crear un entorno virtual:
+   ```
+   python3 -m venv agrorisk_env
+   source agrorisk_env/bin/activate
+   ```
+3. Instalar los paquetes requeridos para ambos módulos:
+   ```
+   pip install flask pandas geopandas numpy shapely folium branca pyproj matplotlib scipy statsmodels flask_sqlalchemy
+   ```
+4. Ejecutar la aplicación integrada (con el entorno virtual activado):
+   ```
+   ./start_all.sh
+   ```
+5. Abrir el navegador y acceder a:
+   - Aplicación principal: `http://localhost:5000`
+   - Módulo de Análisis de Riesgos: `http://localhost:5001`
+
+### Opción 2: Instalación Global
+
+1. Clonar el repositorio: `git clone https://github.com/AIDeepEconomics/AgroRisk.git`
+2. Instalar los paquetes requeridos (puede requerir permisos de administrador):
+   ```
+   pip install -r requirements.txt
+   ```
+   Nota: En algunos sistemas, puede ser necesario usar `--break-system-packages` si el sistema tiene un entorno Python gestionado externamente.
 3. Ejecutar la aplicación integrada: `./start_all.sh`
 4. Abrir el navegador y acceder a:
    - Aplicación principal: `http://localhost:5000`
@@ -47,8 +74,15 @@ AgroRisk/
 |-- templates/            # Plantillas HTML
 |-- modules/             # Módulos independientes
 |   |-- risk_analysis/   # Módulo de análisis de riesgos
+|       |-- app.py       # Aplicación Flask del módulo de análisis
+|       |-- run.py       # Script para iniciar el módulo
+|       |-- database/    # Modelos y configuración de base de datos
+|       |-- backend/     # Lógica de análisis y procesamiento
+|       |-- templates/   # Plantillas HTML específicas del módulo
+|       |-- static/      # Archivos estáticos específicos del módulo
 |-- start_all.sh         # Script para iniciar todos los módulos
 |-- requirements.txt     # Dependencias del proyecto
+|-- agrorisk_env/        # Entorno virtual (creado durante la configuración)
 ```
 
 ## Desarrollo de Nuevos Módulos
@@ -86,3 +120,46 @@ Este proyecto está licenciado bajo la Licencia MIT - ver el archivo LICENSE par
 ## Nota Importante
 
 El archivo `parcels.geojson` contiene parcelas personalizadas de Chacra que deben ser preservadas. La aplicación está diseñada para verificar si este archivo existe antes de generar nuevas parcelas aleatorias.
+
+## Requisitos Específicos por Módulo
+
+### Aplicación Principal (app.py)
+
+Paquetes requeridos:
+- Flask
+- Pandas
+- GeoPandas
+- NumPy
+- Shapely
+- Folium
+- Branca
+- PyProj
+
+### Módulo de Análisis de Riesgos (modules/risk_analysis)
+
+Paquetes adicionales requeridos:
+- Flask-SQLAlchemy
+- SciPy
+- Statsmodels
+- Matplotlib
+
+## Solución de Problemas
+
+### Error "No module named..."
+
+Si recibe errores de módulos faltantes al iniciar la aplicación, asegúrese de que todos los paquetes requeridos estén instalados en su entorno:
+
+```
+source agrorisk_env/bin/activate  # Activar el entorno virtual
+pip install flask pandas geopandas numpy shapely folium branca pyproj matplotlib scipy statsmodels flask_sqlalchemy
+```
+
+### Error "Command 'python' not found"
+
+Si el script start_all.sh falla con un error indicando que el comando 'python' no se encuentra, edite el script para usar 'python3' en su lugar:
+
+```
+# Cambiar en start_all.sh
+python app.py &  -->  python3 app.py &
+python run.py &  -->  python3 run.py &
+```
