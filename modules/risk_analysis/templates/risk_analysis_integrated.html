@@ -1,0 +1,1093 @@
+ <!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AgroRisk Platform - Advanced agricultural risk assessment and microinsurance management system">
+    <meta name="author" content="AgroRisk Technologies">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>AgroRisk Platform | Risk Analysis</title>
+    
+    <!-- Core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    
+    <!-- Custom styles - matching index12.html -->
+    <style>
+        :root {
+            /* Primary palette */
+            --primary-color: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #0f524a;
+            --secondary-color: #064e3b;
+            --accent-color: #f59e0b;
+            
+            /* UI palette */
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            
+            /* Neutral palette */
+            --light-color: #f8fafc;
+            --light-offset: #f1f5f9;
+            --gray-color: #cbd5e1;
+            --dark-gray: #475569;
+            --dark-color: #1e293b;
+            --black: #0f172a;
+            
+            /* Layout */
+            --border-radius-sm: 0.25rem;
+            --border-radius: 0.5rem;
+            --border-radius-lg: 0.75rem;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease-in-out;
+        }
+        
+        /* Base styles */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--light-offset);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        /* Typography enhancements */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--light-color);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-color);
+            border-radius: 20px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-gray);
+        }
+        
+        /* Layout containers */
+        .app-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto 1fr auto;
+            grid-template-areas:
+                "sidebar header"
+                "sidebar main"
+                "sidebar footer";
+            height: 100vh;
+            width: 100%;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            width: 280px;
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1030;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .sidebar-collapsed {
+            width: 70px;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .sidebar-toggle {
+            color: white;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .nav-section {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-section-title {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .nav-item {
+            padding: 0.8rem 1.5rem;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+        
+        .nav-item:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+        }
+        
+        .nav-item.active {
+            background-color: var(--secondary-color);
+            color: white;
+        }
+        
+        .nav-item i {
+            margin-right: 1rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .sidebar.sidebar-collapsed .nav-section-title,
+        .sidebar.sidebar-collapsed .nav-item span {
+            display: none;
+        }
+        
+        .sidebar.sidebar-collapsed .nav-item {
+            justify-content: center;
+            padding: 1rem;
+        }
+        
+        .sidebar.sidebar-collapsed .nav-item i {
+            margin-right: 0;
+        }
+        
+        .sidebar.sidebar-collapsed .sidebar-brand span {
+            display: none;
+        }
+        
+        .sidebar-footer {
+            margin-top: auto;
+            padding: 1.5rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+            font-weight: 600;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            line-height: 1.1;
+        }
+        
+        .user-role {
+            font-size: 0.8rem;
+            opacity: 0.8;
+        }
+        
+        .sidebar.sidebar-collapsed .user-info div:not(.user-avatar) {
+            display: none;
+        }
+        
+        .sidebar.sidebar-collapsed .user-avatar {
+            margin-right: 0;
+        }
+        
+        /* Header */
+        .app-header {
+            grid-area: header;
+            background-color: white;
+            height: 70px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            box-shadow: var(--shadow-sm);
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            margin: 0;
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .search-container {
+            position: relative;
+            margin-right: 1rem;
+        }
+        
+        .search-input {
+            border: 1px solid var(--gray-color);
+            border-radius: 30px;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            width: 250px;
+            background-color: var(--light-color);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 2px rgba(15, 118, 110, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+        
+        .header-action {
+            background: none;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--dark-gray);
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .header-action:hover {
+            background-color: var(--light-offset);
+            color: var(--dark-color);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 18px;
+            height: 18px;
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 0.7rem;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .user-avatar-sm {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: var(--dark-color);
+            font-size: 1.5rem;
+            margin-right: 1rem;
+            cursor: pointer;
+        }
+        
+        /* Main content */
+        .main-content {
+            grid-area: main;
+            overflow-y: auto;
+            padding: 2rem;
+        }
+        
+        /* Dashboard Grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            grid-auto-rows: minmax(100px, auto);
+            gap: 1.5rem;
+        }
+        
+        /* Risk Analysis Grid Layout */
+        .risk-analysis-grid {
+            grid-template-areas:
+                "filters filters filters filters filters filters filters filters filters filters filters filters"
+                "main main main main main main main main main summary summary summary"
+                "main main main main main main main main main summary summary summary"
+                "main main main main main main main main main alerts alerts alerts";
+            gap: 1.5rem;
+        }
+        
+        .filters-section {
+            grid-area: filters;
+        }
+        
+        .main-analysis {
+            grid-area: main;
+        }
+        
+        .risk-summary {
+            grid-area: summary;
+        }
+        
+        .risk-alerts {
+            grid-area: alerts;
+        }
+        
+        /* Cards */
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            border: none;
+            height: 100%;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid var(--light-offset);
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            padding: 1rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .card-title {
+            font-weight: 600;
+            margin: 0;
+            font-size: 1.1rem;
+            color: var(--dark-color);
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        .card-header-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        /* Plot container */
+        .plot-container {
+            width: 100%;
+            height: 400px;
+            position: relative;
+        }
+        
+        .loading-container {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.8);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 10;
+        }
+        
+        .loading-text {
+            margin-top: 1rem;
+            color: var(--dark-gray);
+        }
+        
+        /* Footer */
+        .app-footer {
+            grid-area: footer;
+            background-color: white;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-top: 1px solid var(--light-offset);
+        }
+        
+        .footer-copyright {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .footer-links a {
+            color: var(--dark-gray);
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: var(--transition);
+        }
+        
+        .footer-links a:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Risk Meter */
+        .risk-meter-container {
+            padding: 1rem 0;
+        }
+        
+        .risk-meter {
+            height: 8px;
+            background-color: #f1f1f1;
+            border-radius: 4px;
+            overflow: hidden;
+            position: relative;
+            margin-bottom: 10px;
+        }
+        
+        .risk-meter-bar {
+            height: 100%;
+            width: 60%;
+            background: linear-gradient(to right, var(--success-color), var(--warning-color), var(--danger-color));
+            border-radius: 4px;
+        }
+        
+        .risk-meter-marker {
+            position: absolute;
+            top: -4px;
+            left: 60%;
+            width: 16px;
+            height: 16px;
+            background-color: white;
+            border: 2px solid var(--dark-color);
+            border-radius: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .risk-meter-labels {
+            display: flex;
+            justify-content: space-between;
+        }
+        
+        .risk-high-text {
+            color: var(--danger-color);
+        }
+        
+        .risk-medium-text {
+            color: var(--warning-color);
+        }
+        
+        .risk-low-text {
+            color: var(--success-color);
+        }
+        
+        /* Risk Stats */
+        .risk-stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .risk-stat-card {
+            background-color: var(--light-offset);
+            border-radius: var(--border-radius-sm);
+            padding: 1rem;
+            text-align: center;
+        }
+        
+        .risk-stat-title {
+            font-size: 0.9rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+        }
+        
+        .risk-stat-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        /* Alerts List */
+        .alerts-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        
+        .alert-item {
+            display: flex;
+            padding: 1rem;
+            border-bottom: 1px solid var(--light-offset);
+        }
+        
+        .alert-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 1rem;
+        }
+        
+        .alert-icon.high {
+            background-color: rgba(239, 68, 68, 0.1);
+            color: var(--danger-color);
+        }
+        
+        .alert-icon.medium {
+            background-color: rgba(245, 158, 11, 0.1);
+            color: var(--warning-color);
+        }
+        
+        .alert-icon.low {
+            background-color: rgba(16, 185, 129, 0.1);
+            color: var(--success-color);
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .alert-message {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+            margin-bottom: 0.25rem;
+        }
+        
+        .alert-date {
+            color: var(--dark-gray);
+            font-size: 0.8rem;
+        }
+        
+        /* Responsive Queries */
+        @media (max-width: 992px) {
+            .sidebar {
+                transform: translateX(-100%);
+                position: fixed;
+                top: 0;
+                bottom: 0;
+                left: 0;
+                height: 100vh;
+                z-index: 1040;
+                transition: transform 0.3s ease;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+            
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "header"
+                    "main"
+                    "footer";
+            }
+            
+            .sidebar.mobile-visible {
+                transform: translateX(0);
+            }
+            
+            .sidebar-backdrop {
+                display: none;
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: rgba(0, 0, 0, 0.5);
+                z-index: 1035;
+            }
+            
+            .sidebar-backdrop.visible {
+                display: block;
+            }
+            
+            .risk-analysis-grid {
+                grid-template-areas:
+                    "filters filters filters filters filters filters filters filters filters filters filters filters"
+                    "main main main main main main main main main main main main"
+                    "summary summary summary summary summary summary summary summary summary summary summary summary"
+                    "alerts alerts alerts alerts alerts alerts alerts alerts alerts alerts alerts alerts";
+            }
+            
+            .search-container {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 576px) {
+            .main-content {
+                padding: 1rem;
+            }
+            
+            .risk-stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-brand">
+                    <img src="{{ url_for('static', filename='images/AI Deep Economics.png') }}" alt="AgroRisk Logo" height="40" class="me-2">
+                    <span>AgroRisk</span>
+                </a>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="/" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/risk-analysis" class="nav-item active">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Risk Analysis</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crop Performance</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Insurance Products</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Insurance</div>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Policies</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Claims</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calculator"></i>
+                    <span>Premium Calculator</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Management</div>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Clients</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crops & Parcels</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cloud-sun-rain"></i>
+                    <span>Weather Station</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">GB</div>
+                    <div>
+                        <div class="user-name">Gustavo Barboza</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                </div>
+                <button class="sidebar-toggle">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Mobile sidebar backdrop -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Agricultural Risk Analysis</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search parcels, risk data...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <button class="header-action">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">3</span>
+                </button>
+                
+                <div class="user-avatar-sm">GB</div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-grid risk-analysis-grid">
+                <!-- Filters Section -->
+                <div class="filters-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Risk Analysis Filters</div>
+                            <div class="card-header-actions">
+                                <button id="reset-filters" class="btn btn-sm btn-outline-secondary">Reset</button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="row">
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="parcel-select" class="form-label">Parcel</label>
+                                        <select id="parcel-select" class="form-select">
+                                            <option value="" selected>Loading parcels...</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="risk-type-select" class="form-label">Risk Type</label>
+                                        <select id="risk-type-select" class="form-select">
+                                            <option value="drought_risk">Drought Risk</option>
+                                            <option value="flood_risk">Flood Risk</option>
+                                            <option value="frost_risk">Frost Risk</option>
+                                            <option value="overall_risk" selected>Overall Risk</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-md-4">
+                                    <div class="mb-3">
+                                        <label for="date-range" class="form-label">Date Range</label>
+                                        <select id="date-range" class="form-select">
+                                            <option value="30" selected>Last 30 Days</option>
+                                            <option value="90">Last 90 Days</option>
+                                            <option value="180">Last 180 Days</option>
+                                            <option value="365">Last Year</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Main Analysis Section -->
+                <div class="main-analysis">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Risk Analysis</div>
+                            <div class="card-header-actions">
+                                <div class="btn-group" role="group">
+                                    <button type="button" class="btn btn-sm btn-outline-primary active" id="tab-time-series">Time Series</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="tab-comparison">Comparison</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="tab-forecast">Forecast</button>
+                                    <button type="button" class="btn btn-sm btn-outline-primary" id="tab-seasonal">Seasonal</button>
+                                </div>
+                                <button class="btn btn-sm btn-outline-secondary" id="download-chart">
+                                    <i class="fas fa-download me-1"></i> Export
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="tab-content">
+                                <!-- Time Series Tab -->
+                                <div class="tab-pane active" id="time-series-tab">
+                                    <div class="plot-container">
+                                        <div id="time-series-plot"></div>
+                                        <div class="loading-container" id="time-series-loading">
+                                            <div class="spinner-border text-primary" role="status"></div>
+                                            <div class="loading-text">Loading time series data...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Comparison Tab -->
+                                <div class="tab-pane" id="comparison-tab" style="display: none;">
+                                    <div class="plot-container">
+                                        <div id="comparison-plot"></div>
+                                        <div class="loading-container" id="comparison-loading">
+                                            <div class="spinner-border text-primary" role="status"></div>
+                                            <div class="loading-text">Loading comparison data...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Forecast Tab -->
+                                <div class="tab-pane" id="forecast-tab" style="display: none;">
+                                    <div class="plot-container">
+                                        <div id="forecast-plot"></div>
+                                        <div class="loading-container" id="forecast-loading">
+                                            <div class="spinner-border text-primary" role="status"></div>
+                                            <div class="loading-text">Loading forecast data...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Seasonal Tab -->
+                                <div class="tab-pane" id="seasonal-tab" style="display: none;">
+                                    <div class="plot-container">
+                                        <div id="seasonal-plot"></div>
+                                        <div class="loading-container" id="seasonal-loading">
+                                            <div class="spinner-border text-primary" role="status"></div>
+                                            <div class="loading-text">Loading seasonal data...</div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Summary Section -->
+                <div class="risk-summary">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <div class="card-title">Risk Summary</div>
+                            <div class="card-header-actions">
+                                <button class="btn btn-sm btn-outline-secondary" id="refresh-summary">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="current-risk">
+                                <h5 class="text-center mb-3">Current Risk Level</h5>
+                                <div class="risk-meter-container">
+                                    <div class="risk-meter">
+                                        <div class="risk-meter-bar"></div>
+                                        <div class="risk-meter-marker" id="risk-marker"></div>
+                                    </div>
+                                    <div class="risk-meter-labels">
+                                        <span class="risk-low-text">Low</span>
+                                        <span class="risk-medium-text">Medium</span>
+                                        <span class="risk-high-text">High</span>
+                                    </div>
+                                </div>
+                                <h3 class="text-center mt-3 mb-4" id="risk-percentage">---%</h3>
+                            </div>
+                            
+                            <div class="risk-stats-grid">
+                                <div class="risk-stat-card">
+                                    <div class="risk-stat-title">Average Risk</div>
+                                    <div class="risk-stat-value" id="avg-risk">---%</div>
+                                </div>
+                                <div class="risk-stat-card">
+                                    <div class="risk-stat-title">Max Risk</div>
+                                    <div class="risk-stat-value" id="max-risk">---%</div>
+                                </div>
+                                <div class="risk-stat-card">
+                                    <div class="risk-stat-title">Risk Trend</div>
+                                    <div class="risk-stat-value" id="risk-trend">
+                                        <i class="fas fa-minus text-muted"></i>
+                                    </div>
+                                </div>
+                                <div class="risk-stat-card">
+                                    <div class="risk-stat-title">Days at Risk</div>
+                                    <div class="risk-stat-value" id="days-at-risk">--</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Alerts Section -->
+                <div class="risk-alerts">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <div class="card-title">Risk Alerts</div>
+                            <div class="card-header-actions">
+                                <button class="btn btn-sm btn-outline-secondary" id="refresh-alerts">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="no-alerts" class="text-center py-4">
+                                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                                <h5>No active alerts</h5>
+                                <p class="text-muted">Select a parcel to view risk alerts</p>
+                            </div>
+                            
+                            <div class="alerts-list" id="alerts-list" style="display: none;">
+                                <!-- Alerts will be dynamically populated here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-copyright">
+                &copy; 2025 AgroRisk Platform. All rights reserved.
+            </div>
+            <div class="footer-links">
+                <a href="#">Privacy Policy</a>
+                <a href="#">Terms of Service</a>
+                <a href="#">Help Center</a>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='js/risk_analysis.js') }}"></script>
+    <script>
+        // Sidebar Toggle Functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            const sidebar = document.getElementById('sidebar');
+            const sidebarToggle = document.getElementById('sidebar-toggle');
+            const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+            const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+            
+            // Sidebar toggle (desktop)
+            if(sidebarToggle) {
+                sidebarToggle.addEventListener('click', function() {
+                    sidebar.classList.toggle('sidebar-collapsed');
+                    
+                    // Update the icon
+                    const icon = sidebarToggle.querySelector('i');
+                    if(sidebar.classList.contains('sidebar-collapsed')) {
+                        icon.classList.remove('fa-chevron-left');
+                        icon.classList.add('fa-chevron-right');
+                    } else {
+                        icon.classList.remove('fa-chevron-right');
+                        icon.classList.add('fa-chevron-left');
+                    }
+                });
+            }
+            
+            // Mobile menu toggle
+            if(mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', function() {
+                    sidebar.classList.add('mobile-visible');
+                    sidebarBackdrop.classList.add('visible');
+                });
+            }
+            
+            // Click on backdrop to close sidebar
+            if(sidebarBackdrop) {
+                sidebarBackdrop.addEventListener('click', function() {
+                    sidebar.classList.remove('mobile-visible');
+                    sidebarBackdrop.classList.remove('visible');
+                });
+            }
+            
+            // Initialize tabs
+            const tabButtons = document.querySelectorAll('.btn-group .btn');
+            const tabPanes = document.querySelectorAll('.tab-pane');
+            
+            tabButtons.forEach(button => {
+                button.addEventListener('click', function() {
+                    // Remove active class from all buttons
+                    tabButtons.forEach(btn => btn.classList.remove('active'));
+                    
+                    // Add active class to clicked button
+                    this.classList.add('active');
+                    
+                    // Hide all tab panes
+                    tabPanes.forEach(pane => pane.style.display = 'none');
+                    
+                    // Show the corresponding tab pane
+                    const tabId = this.id.replace('tab-', '');
+                    document.getElementById(tabId + '-tab').style.display = 'block';
+                    
+                    // Trigger resize event to make sure plots render correctly
+                    window.dispatchEvent(new Event('resize'));
+                });
+            });
+        });
+    </script>
+</body>
+</html>

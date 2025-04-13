@@ -1,0 +1,3456 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="AgroRisk Platform - Advanced agricultural risk assessment and microinsurance management system">
+    <meta name="author" content="AgroRisk Technologies">
+    <link rel="icon" href="favicon.ico" type="image/x-icon">
+    <title>AgroRisk Platform | Agricultural Risk Intelligence</title>
+    <!-- Preload critical assets -->
+    <link rel="preload" href="00889ed8-d416-4008-9b99-b80ce862f60c.png" as="image">
+    <!-- Core CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom styles -->
+    <style>
+        :root {
+            /* Primary palette */
+            --primary-color: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #0f524a;
+            --secondary-color: #064e3b;
+            --accent-color: #f59e0b;
+            
+            /* UI palette */
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            
+            /* Neutral palette */
+            --light-color: #f8fafc;
+            --light-offset: #f1f5f9;
+            --gray-color: #cbd5e1;
+            --dark-gray: #475569;
+            --dark-color: #1e293b;
+            --black: #0f172a;
+            
+            /* Layout */
+            --border-radius-sm: 0.25rem;
+            --border-radius: 0.5rem;
+            --border-radius-lg: 0.75rem;
+            --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+            --transition: all 0.2s ease-in-out;
+        }
+        
+        /* Base styles */
+        html {
+            scroll-behavior: smooth;
+            scroll-padding-top: 80px;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--light-offset);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        /* Typography enhancements */
+        h1, h2, h3, h4, h5, h6 {
+            font-weight: 700;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+        
+        ::-webkit-scrollbar-track {
+            background: var(--light-color);
+        }
+        
+        ::-webkit-scrollbar-thumb {
+            background: var(--gray-color);
+            border-radius: 20px;
+        }
+        
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--dark-gray);
+        }
+        
+        /* Layout containers */
+        .app-container {
+            display: grid;
+            grid-template-columns: auto 1fr;
+            grid-template-rows: auto 1fr auto;
+            grid-template-areas:
+                "sidebar header"
+                "sidebar main"
+                "sidebar footer";
+            height: 100vh;
+            width: 100%;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            grid-area: sidebar;
+            width: 280px;
+            background-color: var(--primary-color);
+            color: var(--light-color);
+            overflow-y: auto;
+            transition: var(--transition);
+            z-index: 1030;
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .sidebar-collapsed {
+            width: 70px;
+        }
+        
+        .sidebar-header {
+            padding: 1.5rem 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .sidebar-brand {
+            display: flex;
+            align-items: center;
+            color: white;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 1.25rem;
+        }
+        
+        .sidebar-toggle {
+            color: white;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: var(--border-radius);
+            transition: var(--transition);
+        }
+        
+        .sidebar-toggle:hover {
+            background-color: rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-section {
+            padding: 1rem 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+        
+        .nav-section-title {
+            padding: 0.5rem 1.5rem;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: rgba(255, 255, 255, 0.6);
+        }
+        
+        .nav-item {
+            padding: 0.5rem 1.5rem;
+            margin: 0.25rem 0;
+            display: flex;
+            align-items: center;
+            color: rgba(255, 255, 255, 0.8);
+            text-decoration: none;
+            transition: var(--transition);
+            border-left: 3px solid transparent;
+        }
+        
+        .nav-item:hover, .nav-item.active {
+            background-color: rgba(255, 255, 255, 0.1);
+            color: white;
+            border-left-color: var(--accent-color);
+        }
+        
+        .nav-item i {
+            margin-right: 1rem;
+            font-size: 1.1rem;
+            width: 20px;
+            text-align: center;
+        }
+        
+        .nav-item span {
+            transition: var(--transition);
+        }
+        
+        .sidebar-collapsed .nav-item span,
+        .sidebar-collapsed .nav-section-title,
+        .sidebar-collapsed .sidebar-brand span {
+            display: none;
+        }
+        
+        .sidebar-collapsed .nav-item {
+            justify-content: center;
+            padding: 0.5rem;
+        }
+        
+        .sidebar-collapsed .nav-item i {
+            margin-right: 0;
+            font-size: 1.25rem;
+        }
+        
+        /* Sidebar footer */
+        .sidebar-footer {
+            padding: 1rem;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            flex: 1;
+        }
+        
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: var(--accent-color);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            margin-right: 0.75rem;
+        }
+        
+        .user-name {
+            font-weight: 600;
+            color: white;
+            transition: var(--transition);
+        }
+        
+        .user-role {
+            font-size: 0.75rem;
+            color: rgba(255, 255, 255, 0.6);
+            transition: var(--transition);
+        }
+        
+        .sidebar-collapsed .user-name,
+        .sidebar-collapsed .user-role {
+            display: none;
+        }
+        
+        /* Header */
+        .app-header {
+            grid-area: header;
+            background-color: white;
+            box-shadow: var(--shadow);
+            z-index: 1020;
+            padding: 0.75rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .header-left {
+            display: flex;
+            align-items: center;
+        }
+        
+        .page-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--dark-color);
+        }
+        
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+        
+        .header-action {
+            background: transparent;
+            border: none;
+            color: var(--dark-gray);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+        }
+        
+        .header-action:hover {
+            background-color: var(--light-offset);
+            color: var(--primary-color);
+        }
+        
+        .notification-badge {
+            position: absolute;
+            top: 0;
+            right: 0;
+            background-color: var(--danger-color);
+            color: white;
+            font-size: 0.7rem;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .search-container {
+            position: relative;
+            width: 300px;
+        }
+        
+        .search-input {
+            width: 100%;
+            padding: 0.5rem 1rem 0.5rem 2.5rem;
+            border-radius: 20px;
+            border: 1px solid var(--gray-color);
+            background-color: var(--light-offset);
+            transition: var(--transition);
+        }
+        
+        .search-input:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
+        }
+        
+        .search-icon {
+            position: absolute;
+            left: 0.75rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--dark-gray);
+        }
+        
+        /* Main content */
+        .main-content {
+            grid-area: main;
+            padding: 1.5rem;
+            overflow-y: auto;
+        }
+        
+        /* Dashboard grid */
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(12, 1fr);
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Card styling */
+        .card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            border: none;
+            height: 100%;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid var(--light-offset);
+            padding: 1.25rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .card-title {
+            font-size: 1.1rem;
+            font-weight: 600;
+            margin: 0;
+            color: var(--dark-color);
+        }
+        
+        .card-header-actions {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .card-body {
+            padding: 1.5rem;
+        }
+        
+        /* Map container */
+        .map-container {
+            grid-column: span 8;
+            aspect-ratio: 16/9;
+            position: relative;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+        
+        /* Map controls */
+        .map-controls {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            z-index: 10;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            padding: 0.5rem;
+        }
+        
+        .map-control-btn {
+            background-color: white;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            color: var(--dark-gray);
+        }
+        
+        .map-control-btn:hover {
+            background-color: var(--light-offset);
+            color: var(--primary-color);
+        }
+        
+
+        /* Time slider */
+        .time-control {
+            grid-column: span 4;
+        }
+        
+        .time-control-header {
+            margin-bottom: 1rem;
+        }
+        
+        .time-slider-container {
+            padding: 1.5rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+        }
+        
+        .slider-controls {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1.5rem;
+        }
+        
+        /* Leaflet Time Control Styles */
+        .leaflet-bar-timecontrol {
+            background-color: white;
+            display: flex;
+            flex-wrap: wrap;
+            box-shadow: 0 1px 5px rgba(0,0,0,0.4);
+            border-radius: 4px;
+            padding: 8px;
+            margin-bottom: 15px;
+            width: 100%;
+        }
+        
+        .leaflet-control-timecontrol {
+            margin: 0 2px;
+            float: left;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-backward,
+        .leaflet-control-timecontrol.timecontrol-play,
+        .leaflet-control-timecontrol.timecontrol-forward,
+        .leaflet-control-timecontrol.timecontrol-loop {
+            width: 30px;
+            height: 30px;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: relative;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-date {
+            padding: 0 10px;
+            line-height: 30px;
+            color: var(--text-color);
+            font-weight: bold;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-backward:after {
+            content: '';
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M64 468V44c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12v176.4l195.5-181C352.1 22.3 384 36.6 384 64v384c0 27.4-31.9 41.7-52.5 24.6L136 292.7V468c0 6.6-5.4 12-12 12H76c-6.6 0-12-5.4-12-12z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50% 50%;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-play.play:after {
+            content: '';
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M424.4 214.7L72.4 6.6C43.8-10.3 0 6.1 0 47.9V464c0 37.5 40.7 60.1 72.4 41.3l352-208c31.4-18.5 31.5-64.1 0-82.6z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50% 50%;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-play.pause:after {
+            content: '';
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M144 479H48c-26.5 0-48-21.5-48-48V79c0-26.5 21.5-48 48-48h96c26.5 0 48 21.5 48 48v352c0 26.5-21.5 48-48 48zm304-48V79c0-26.5-21.5-48-48-48h-96c-26.5 0-48 21.5-48 48v352c0 26.5 21.5 48 48 48h96c26.5 0 48-21.5 48-48z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50% 50%;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-forward:after {
+            content: '';
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="white" d="M384 44v424c0 6.6-5.4 12-12 12h-48c-6.6 0-12-5.4-12-12V291.6l-195.5 181C95.9 489.7 64 475.4 64 448V64c0-27.4 31.9-41.7 52.5-24.6L312 219.3V44c0-6.6 5.4-12 12-12h48c6.6 0 12 5.4 12 12z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50% 50%;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-loop:after {
+            content: '';
+            display: inline-block;
+            width: 100%;
+            height: 100%;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="white" d="M370.72 133.28C339.458 104.008 298.888 87.962 255.848 88c-77.458.068-144.328 53.178-162.791 126.85-1.344 5.363-6.122 9.15-11.651 9.15H24.103c-7.498 0-13.194-6.807-11.807-14.176C33.933 94.924 134.813 8 256 8c66.448 0 126.791 26.136 171.315 68.685L463.03 40.97C478.149 25.851 504 36.559 504 57.941V192c0 13.255-10.745 24-24 24H345.941c-21.382 0-32.09-25.851-16.971-40.971l41.75-41.749zM32 296h134.059c21.382 0 32.09 25.851 16.971 40.971l-41.75 41.75c31.262 29.273 71.835 45.319 114.876 45.28 77.418-.07 144.315-53.144 162.787-126.849 1.344-5.363 6.122-9.15 11.651-9.15h57.304c7.498 0 13.194 6.807 11.807 14.176C478.067 417.076 377.187 504 256 504c-66.448 0-126.791-26.136-171.315-68.685L48.97 471.03C33.851 486.149 8 475.441 8 454.059V320c0-13.255 10.745-24 24-24z"/></svg>');
+            background-repeat: no-repeat;
+            background-position: center;
+            background-size: 50% 50%;
+        }
+        
+        .leaflet-control-timecontrol.timecontrol-loop.looped {
+            background-color: var(--success-color);
+        }
+        
+        .timecontrol-slider {
+            width: 100%;
+            margin-top: 10px;
+            height: 10px;
+            background-color: var(--light-offset);
+            border-radius: 5px;
+            position: relative;
+        }
+        
+        .timecontrol-slider .slider {
+            width: 100%;
+            height: 100%;
+            position: relative;
+        }
+        
+        .timecontrol-slider .knob {
+            width: 16px;
+            height: 16px;
+            background-color: var(--primary-color);
+            border-radius: 50%;
+            position: absolute;
+            top: -3px;
+            left: 0;
+            cursor: pointer;
+        }
+        
+        .timecontrol-speed {
+            width: 100%;
+            margin-top: 5px;
+        }
+        
+        .timecontrol-speed .speed {
+            font-size: 0.8rem;
+            color: var(--text-color);
+            margin-bottom: 2px;
+            display: inline-block;
+        }
+        
+        .slider-thumb {
+            position: absolute;
+            top: 50%;
+            left: 30%;
+            transform: translate(-50%, -50%);
+            width: 18px;
+            height: 18px;
+            background-color: white;
+            border: 3px solid var(--primary-color);
+            border-radius: 50%;
+            transition: var(--transition);
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.75rem;
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+        }
+        
+        .current-date {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--dark-color);
+            text-align: center;
+            margin: 1rem 0;
+        }
+        
+        /* Date picker */
+        .date-controls {
+            display: flex;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+        
+        .control-group {
+            flex: 1;
+        }
+        
+        .control-label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            display: block;
+            color: var(--dark-gray);
+        }
+        
+        .date-select, .risk-select {
+            width: 100%;
+            padding: 0.5rem;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--gray-color);
+            background-color: white;
+            transition: var(--transition);
+        }
+        
+        .date-select:focus, .risk-select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
+        }
+        
+        /* Analytics summary */
+        .analytics-summary {
+            grid-column: span 4;
+        }
+        
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 1rem;
+        }
+        
+        .metric-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--light-offset);
+        }
+        
+        .metric-title {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .metric-title i {
+            margin-right: 0.5rem;
+        }
+        
+        .metric-value {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--dark-color);
+        }
+        
+        .metric-trend {
+            margin-top: 0.5rem;
+            font-size: 0.85rem;
+            display: flex;
+            align-items: center;
+        }
+        
+        .trend-up {
+            color: var(--success-color);
+        }
+        
+        .trend-down {
+            color: var(--danger-color);
+        }
+        
+        .crop-metrics {
+            margin-top: 1.5rem;
+        }
+        
+        .crop-metric {
+            background-color: var(--light-offset);
+            border-radius: var(--border-radius-sm);
+            padding: 1rem;
+            margin-bottom: 1rem;
+        }
+        
+        .crop-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 0.75rem;
+        }
+        
+        .crop-name {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .crop-name i {
+            margin-right: 0.5rem;
+            color: var(--primary-color);
+        }
+        
+        .crop-badge {
+            background-color: rgba(15, 118, 110, 0.15);
+            color: var(--primary-color);
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .crop-stat {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0.5rem 0;
+            border-bottom: 1px dashed rgba(203, 213, 225, 0.5);
+        }
+        
+        .crop-stat:last-child {
+            border-bottom: none;
+        }
+        
+        .stat-label {
+            color: var(--dark-gray);
+            font-size: 0.85rem;
+        }
+        
+        .stat-value {
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+        }
+        
+        .risk-indicator {
+            display: flex;
+            align-items: center;
+        }
+        
+        .risk-indicator i {
+            margin-right: 0.3rem;
+        }
+        
+        .risk-high-text {
+            color: var(--danger-color);
+        }
+        
+        .risk-medium-text {
+            color: var(--warning-color);
+        }
+        
+        .risk-low-text {
+            color: var(--success-color);
+        }
+        
+        /* Alerts section */
+        .alerts-section {
+            grid-column: span 8;
+        }
+        
+        .alerts-container {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        
+        .alert-item {
+            padding: 1rem;
+            border-radius: var(--border-radius-sm);
+            margin-bottom: 0.75rem;
+            background-color: var(--light-offset);
+            display: flex;
+            align-items: center;
+            transition: var(--transition);
+        }
+        
+        .alert-item:hover {
+            transform: translateY(-2px);
+            box-shadow: var(--shadow);
+        }
+        
+        .alert-icon {
+            margin-right: 1rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            flex-shrink: 0;
+        }
+        
+        .alert-icon.high {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger-color);
+        }
+        
+        .alert-icon.medium {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning-color);
+        }
+        
+        .alert-content {
+            flex: 1;
+        }
+        
+        .alert-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+        
+        .alert-message {
+            color: var(--dark-gray);
+            font-size: 0.9rem;
+        }
+        
+        .alert-meta {
+            display: flex;
+            align-items: center;
+            margin-top: 0.5rem;
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+        }
+        
+        .alert-meta > div {
+            display: flex;
+            align-items: center;
+            margin-right: 1rem;
+        }
+        
+        .alert-meta i {
+            margin-right: 0.3rem;
+        }
+        
+        .alert-actions {
+            margin-left: 1rem;
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .alert-btn {
+            background: transparent;
+            border: none;
+            color: var(--dark-gray);
+            width: 32px;
+            height: 32px;
+            border-radius: var(--border-radius-sm);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .alert-btn:hover {
+            background-color: white;
+            color: var(--primary-color);
+        }
+        
+        /* Yield predictions */
+        .predictions-section {
+            grid-column: span 4;
+        }
+        
+        .prediction-tabs {
+            display: flex;
+            border-bottom: 1px solid var(--light-offset);
+            margin-bottom: 1rem;
+        }
+        
+        .prediction-tab {
+            padding: 0.75rem 1rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+        
+        .prediction-tab.active {
+            color: var(--primary-color);
+            border-bottom-color: var(--primary-color);
+        }
+        
+        .prediction-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .prediction-table th {
+            text-align: left;
+            padding: 0.75rem;
+            font-weight: 600;
+            color: var(--dark-gray);
+            background-color: var(--light-offset);
+            font-size: 0.85rem;
+        }
+        
+        .prediction-table td {
+            padding: 0.75rem;
+            border-bottom: 1px solid var(--light-offset);
+            vertical-align: middle;
+        }
+        
+        .prediction-table tr:last-child td {
+            border-bottom: none;
+        }
+        
+        .confidence-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            font-weight: 600;
+        }
+        
+        .badge-high {
+            background-color: rgba(16, 185, 129, 0.15);
+            color: var(--success-color);
+        }
+        
+        .badge-medium {
+            background-color: rgba(245, 158, 11, 0.15);
+            color: var(--warning-color);
+        }
+        
+        .badge-low {
+            background-color: rgba(239, 68, 68, 0.15);
+            color: var(--danger-color);
+        }
+        
+        .parcel-id {
+            font-size: 0.8rem;
+            color: var(--dark-gray);
+            background-color: var(--light-offset);
+            padding: 0.25rem 0.5rem;
+            border-radius: var(--border-radius-sm);
+        }
+        
+        /* Insurance products section */
+        .insurance-section {
+            grid-column: span 12;
+        }
+        
+        .insurance-products {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1.5rem;
+        }
+        
+        .product-card {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+            position: relative;
+            transition: var(--transition);
+            height: 100%;
+        }
+        
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-lg);
+        }
+        
+        .product-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1.5rem;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .product-pattern {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(45deg, rgba(255,255,255,0.1) 25%, transparent 25%, transparent 50%, rgba(255,255,255,0.1) 50%, rgba(255,255,255,0.1) 75%, transparent 75%, transparent);
+            background-size: 20px 20px;
+            opacity: 0.3;
+        }
+        
+        .product-title {
+            font-size: 1.25rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .product-subtitle {
+            font-size: 0.9rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .product-price {
+            margin-top: 1rem;
+            position: relative;
+            z-index: 1;
+        }
+        
+        .price-amount {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        .price-unit {
+            font-size: 0.9rem;
+            opacity: 0.9;
+        }
+        
+        .product-body {
+            padding: 1.5rem;
+        }
+        
+        .product-feature {
+            display: flex;
+            align-items: flex-start;
+            margin-bottom: 1rem;
+        }
+        
+        .feature-icon {
+            width: 20px;
+            height: 20px;
+            background-color: rgba(15, 118, 110, 0.15);
+            color: var(--primary-color);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.7rem;
+            margin-right: 0.75rem;
+            margin-top: 0.2rem;
+            flex-shrink: 0;
+        }
+        
+        .feature-text {
+            flex: 1;
+            font-size: 0.9rem;
+        }
+        
+        .product-cta {
+            padding: 0 1.5rem 1.5rem;
+        }
+        
+        .btn-product {
+            width: 100%;
+            padding: 0.75rem;
+            border: none;
+            background-color: var(--primary-color);
+            color: white;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .btn-product:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .product-badge {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background-color: var(--accent-color);
+            color: white;
+            font-size: 0.75rem;
+            font-weight: 600;
+            padding: 0.25rem 0.5rem;
+            border-radius: 20px;
+            z-index: 2;
+        }
+        
+        /* Footer */
+        .app-footer {
+            grid-area: footer;
+            background-color: white;
+            border-top: 1px solid var(--light-offset);
+            padding: 1rem 1.5rem;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .footer-copyright {
+            font-size: 0.85rem;
+            color: var(--dark-gray);
+        }
+        
+        .footer-links {
+            display: flex;
+            gap: 1.5rem;
+        }
+        
+        .footer-link {
+            color: var(--dark-gray);
+            font-size: 0.85rem;
+            text-decoration: none;
+            transition: var(--transition);
+        }
+        
+        .footer-link:hover {
+            color: var(--primary-color);
+        }
+        
+        /* Notifications dropdown */
+        .dropdown-menu {
+            padding: 0;
+            border: none;
+            box-shadow: var(--shadow-lg);
+            border-radius: var(--border-radius);
+            min-width: 300px;
+            max-width: 360px;
+        }
+        
+        .dropdown-header {
+            background-color: var(--primary-color);
+            color: white;
+            padding: 1rem 1.5rem;
+            font-weight: 600;
+            border-radius: var(--border-radius) var(--border-radius) 0 0;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .dropdown-body {
+            max-height: 350px;
+            overflow-y: auto;
+        }
+        
+        .notification-item {
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--light-offset);
+            display: flex;
+            align-items: flex-start;
+            transition: var(--transition);
+        }
+        
+        .notification-item:hover {
+            background-color: var(--light-offset);
+        }
+        
+        .notification-icon {
+            margin-right: 1rem;
+            flex-shrink: 0;
+        }
+        
+        .notification-content {
+            flex: 1;
+        }
+        
+        .notification-title {
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+            font-size: 0.9rem;
+        }
+        
+        .notification-text {
+            color: var(--dark-gray);
+            font-size: 0.85rem;
+            margin-bottom: 0.5rem;
+        }
+        
+        .notification-time {
+            font-size: 0.75rem;
+            color: var(--dark-gray);
+        }
+        
+        .dropdown-footer {
+            padding: 0.75rem;
+            text-align: center;
+            border-top: 1px solid var(--light-offset);
+        }
+        
+        .dropdown-footer a {
+            color: var(--primary-color);
+            font-size: 0.85rem;
+            font-weight: 600;
+            text-decoration: none;
+        }
+        
+        /* Responsive adjustments */
+        @media (max-width: 992px) {
+            .app-container {
+                grid-template-columns: 1fr;
+                grid-template-areas:
+                    "header"
+                    "main"
+                    "footer";
+            }
+            
+            .sidebar {
+                position: fixed;
+                top: 0;
+                left: -280px;
+                bottom: 0;
+                height: 100vh;
+                transition: left 0.3s ease-in-out;
+            }
+            
+            .dashboard-grid {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .map-container,
+            .analytics-summary,
+            .alerts-section,
+            .predictions-section,
+            .insurance-section {
+                grid-column: span 1;
+            }
+            
+            .insurance-products {
+                grid-template-columns: repeat(1, 1fr);
+            }
+            
+            .search-container {
+                display: none;
+            }
+            
+            .mobile-menu-toggle {
+                display: block;
+            }
+        }
+        
+        @media (min-width: 993px) {
+            .mobile-menu-toggle {
+                display: none;
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .date-controls {
+                flex-direction: column;
+            }
+        }
+        
+        /* Mobile menu toggle */
+        .mobile-menu-toggle {
+            background: transparent;
+            border: none;
+            color: var(--dark-gray);
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+            margin-right: 1rem;
+        }
+        
+        .mobile-menu-toggle:hover {
+            background-color: var(--light-offset);
+            color: var(--primary-color);
+        }
+        
+        /* Backdrop for mobile sidebar */
+        .sidebar-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1025;
+            display: none;
+            opacity: 0;
+            transition: opacity 0.3s ease-in-out;
+        }
+        
+        .sidebar-backdrop.active {
+            display: block;
+            opacity: 1;
+        }
+        
+        /* Animation keyframes */
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(15, 118, 110, 0.4);
+            }
+            70% {
+                box-shadow: 0 0 0 10px rgba(15, 118, 110, 0);
+            }
+            100% {
+                box-shadow: 0 0 0 0 rgba(15, 118, 110, 0);
+            }
+        }
+        
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+        
+        /* Theme toggle switch */
+        .theme-switch {
+            position: relative;
+            width: 48px;
+            height: 24px;
+        }
+        
+        .theme-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        
+        .switch-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 24px;
+        }
+        
+        .switch-slider:before {
+            position: absolute;
+            content: "";
+            height: 18px;
+            width: 18px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        
+        input:checked + .switch-slider {
+            background-color: var(--primary-color);
+        }
+        
+        input:checked + .switch-slider:before {
+            transform: translateX(24px);
+        }
+        
+        /* Modal styling */
+        .modal-backdrop {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(0, 0, 0, 0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1050;
+            opacity: 0;
+            visibility: hidden;
+            transition: var(--transition);
+        }
+        
+        .modal-backdrop.show {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
+            transform: translateY(20px);
+            opacity: 0;
+            transition: var(--transition);
+        }
+        
+        .modal-backdrop.show .modal-content {
+            transform: translateY(0);
+            opacity: 1;
+        }
+        
+        .modal-header {
+            padding: 1.5rem;
+            border-bottom: 1px solid var(--light-offset);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin: 0;
+        }
+        
+        .modal-close {
+            background: transparent;
+            border: none;
+            color: var(--dark-gray);
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        
+        .modal-close:hover {
+            background-color: var(--light-offset);
+            color: var(--danger-color);
+        }
+        
+        .modal-body {
+            padding: 1.5rem;
+        }
+        
+        .modal-footer {
+            padding: 1.5rem;
+            border-top: 1px solid var(--light-offset);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            gap: 1rem;
+        }
+        
+        /* Buttons */
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: var(--border-radius-sm);
+            font-weight: 600;
+            transition: var(--transition);
+            border: none;
+            cursor: pointer;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+        }
+        
+        .btn-secondary {
+            background-color: var(--light-offset);
+            color: var(--dark-color);
+        }
+        
+        .btn-secondary:hover {
+            background-color: var(--gray-color);
+        }
+        
+        .btn-danger {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .btn-danger:hover {
+            background-color: #dc2626;
+        }
+        
+        /* Animation for data loading */
+        @keyframes shimmer {
+            0% {
+                background-position: -468px 0;
+            }
+            100% {
+                background-position: 468px 0;
+            }
+        }
+        
+        .shimmer {
+            background: linear-gradient(to right, var(--light-offset) 8%, var(--gray-color) 18%, var(--light-offset) 33%);
+            background-size: 800px 104px;
+            animation: shimmer 1.5s infinite linear;
+            height: 20px;
+            border-radius: 4px;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Form styling */
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--dark-color);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 0.75rem;
+            border-radius: var(--border-radius-sm);
+            border: 1px solid var(--gray-color);
+            transition: var(--transition);
+        }
+        
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
+        }
+        
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .tooltip:hover .tooltip-text {
+            visibility: visible;
+            opacity: 1;
+            transform: translateY(0);
+        }
+        
+        .tooltip-text {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--dark-color);
+            color: white;
+            text-align: center;
+            border-radius: var(--border-radius-sm);
+            padding: 0.5rem;
+            position: absolute;
+            z-index: 1;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: opacity 0.3s, transform 0.3s;
+            font-size: 0.8rem;
+            box-shadow: var(--shadow);
+        }
+        
+        .tooltip-text::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: var(--dark-color) transparent transparent transparent;
+        }
+        
+        /* Adjust All Yield Predictions card to fit table */
+        .insurance-section .card {
+            height: auto;
+            margin-bottom: 1rem;
+        }
+        
+        .insurance-section .card-body {
+            padding: 0.75rem;
+        }
+        
+        .insurance-section .table-responsive {
+            height: 200px;
+            overflow-y: auto;
+        }
+        
+        .table thead th {
+            position: sticky;
+            top: 0;
+            background-color: #fff;
+            z-index: 1;
+        }
+        
+        /* Loading overlay */
+        .loading-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: rgba(255, 255, 255, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 5;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s, visibility 0.3s;
+        }
+        
+        .loading-overlay.active {
+            opacity: 1;
+            visibility: visible;
+        }
+        
+        .loading-message {
+            background-color: white;
+            border-radius: var(--border-radius);
+            padding: 1rem 2rem;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+        }
+        
+        .loading-spinner {
+            margin-right: 1rem;
+        }
+        
+        /* Sortable table headers */
+        .sortable-header {
+            cursor: pointer;
+        }
+        
+        .sortable-header:hover {
+            background-color: rgba(15, 118, 110, 0.05);
+        }
+        
+        .sort-icon {
+            transition: transform 0.2s ease;
+        }
+        
+        .sort-asc .sort-icon {
+            transform: rotate(0deg);
+        }
+        
+        .sort-desc .sort-icon {
+            transform: rotate(180deg);
+        }
+        
+        /* Error message styling */
+        .error-message {
+            background-color: #FEE2E2;
+            border: 1px solid #EF4444;
+            border-radius: var(--border-radius);
+            padding: 1rem;
+            margin-bottom: 1rem;
+            color: #B91C1C;
+            display: flex;
+            align-items: center;
+        }
+        
+        .error-message i {
+            margin-right: 0.75rem;
+            font-size: 1.25rem;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="#" class="sidebar-brand">
+                    <img src="{{ url_for('static', filename='AI Deep Economics.png') }}" alt="AgroRisk Logo" height="40" class="me-2">
+                    <span>AgroRisk</span>
+                </a>
+                <button id="sidebar-toggle" class="sidebar-toggle">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Main</div>
+                <a href="#" class="nav-item active" data-section="dashboard" id="nav-dashboard">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+                <a href="/risk_analysis" class="nav-item" id="nav-risk-analysis">
+                    <i class="fas fa-chart-bar"></i>
+                    <span>Risk Analysis</span>
+                </a>
+                <a href="#" class="nav-item" data-section="crops" id="nav-crops">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crop Performance</span>
+                </a>
+                <a href="#" class="nav-item" data-section="insurance" id="nav-insurance">
+                    <i class="fas fa-shield-alt"></i>
+                    <span>Insurance Products</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Insurance</div>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-contract"></i>
+                    <span>Policies</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                    <span>Claims</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-calculator"></i>
+                    <span>Premium Calculator</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-history"></i>
+                    <span>History</span>
+                </a>
+            </div>
+            
+            <div class="nav-section">
+                <div class="nav-section-title">Management</div>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-users"></i>
+                    <span>Clients</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-seedling"></i>
+                    <span>Crops & Parcels</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cloud-sun-rain"></i>
+                    <span>Weather Station</span>
+                </a>
+                <a href="#" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar">GB</div>
+                    <div>
+                        <div class="user-name">Gustavo Barboza Martignone</div>
+                        <div class="user-role">Administrator</div>
+                    </div>
+                </div>
+                <button class="sidebar-toggle">
+                    <i class="fas fa-sign-out-alt"></i>
+                </button>
+            </div>
+        </aside>
+        
+        <!-- Mobile sidebar backdrop -->
+        <div class="sidebar-backdrop" id="sidebar-backdrop"></div>
+        
+        <!-- Header -->
+        <header class="app-header">
+            <div class="header-left">
+                <button class="mobile-menu-toggle" id="mobile-menu-toggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <h1 class="page-title">Dynamic Risk Assessment Dashboard</h1>
+            </div>
+            
+            <div class="header-right">
+                <div class="search-container">
+                    <input type="text" class="search-input" placeholder="Search parcels, clients, policies...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+                
+                <button class="header-action" data-bs-toggle="dropdown" aria-expanded="false">
+                    <i class="fas fa-bell"></i>
+                    <span class="notification-badge">5</span>
+                </button>
+                <div class="dropdown-menu dropdown-menu-end">
+                    <div class="dropdown-header">
+                        <span>Notifications</span>
+                        <button class="btn-sm btn-secondary">Mark all as read</button>
+                    </div>
+                    <div class="dropdown-body">
+                        <div class="notification-item">
+                            <div class="notification-icon text-danger">
+                                <i class="fas fa-exclamation-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">High Risk Alert</div>
+                                <div class="notification-text">Drought risk increased to critical levels in Sector 3</div>
+                                <div class="notification-time">30 minutes ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-icon text-primary">
+                                <i class="fas fa-file-contract"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">New Policy Created</div>
+                                <div class="notification-text">Policy #AR-2025-0089 has been issued</div>
+                                <div class="notification-time">2 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-icon text-warning">
+                                <i class="fas fa-cloud-rain"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">Weather Alert</div>
+                                <div class="notification-text">Possible heavy rainfall predicted in Northern regions</div>
+                                <div class="notification-time">5 hours ago</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-icon text-success">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">Claim Approved</div>
+                                <div class="notification-text">Claim #CL-2025-0456 has been approved for payment</div>
+                                <div class="notification-time">Yesterday</div>
+                            </div>
+                        </div>
+                        <div class="notification-item">
+                            <div class="notification-icon text-info">
+                                <i class="fas fa-satellite"></i>
+                            </div>
+                            <div class="notification-content">
+                                <div class="notification-title">New Satellite Data</div>
+                                <div class="notification-text">Latest satellite imagery has been processed</div>
+                                <div class="notification-time">Yesterday</div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="dropdown-footer">
+                        <a href="#">View all notifications</a>
+                    </div>
+                </div>
+                
+                <button class="header-action">
+                    <i class="fas fa-question-circle"></i>
+                </button>
+                
+                <button class="header-action">
+                    <i class="fas fa-cog"></i>
+                </button>
+                
+                <div class="theme-switch ms-3">
+                    <input type="checkbox" id="theme-toggle">
+                    <label class="switch-slider" for="theme-toggle"></label>
+                </div>
+            </div>
+        </header>
+        
+        <!-- Main Content -->
+        <main class="main-content">
+            <div class="dashboard-grid">
+                <!-- Map Container -->
+                <div class="map-container">
+                    <iframe id="map-frame" width="100%" height="100%" src="/map" frameborder="0" title="Interactive Risk Map"></iframe>
+                    <!-- Map controls will be dynamically added by map-controls.js -->
+                    
+
+                </div>
+                
+                <!-- Time Control Section -->
+                <div class="time-control">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <div class="card-title">Time Navigation</div>
+                            <div class="card-header-actions">
+                                <button class="map-control-btn" aria-label="Time settings">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="map-time-controls" class="leaflet-bar leaflet-bar-horizontal leaflet-bar-timecontrol leaflet-control">
+                                <a class="leaflet-control-timecontrol timecontrol-backward" href="#" title="Backward"></a>
+                                <a id="play-button" class="leaflet-control-timecontrol timecontrol-play play" href="#" title="Play"></a>
+                                <a class="leaflet-control-timecontrol timecontrol-forward" href="#" title="Forward"></a>
+                                <a class="leaflet-control-timecontrol timecontrol-loop" href="#" title="Loop"></a>
+                                <a class="leaflet-control-timecontrol timecontrol-date" href="#" id="current-date" title="Date">2025-01-15</a>
+                                <div class="leaflet-control-timecontrol timecontrol-slider timecontrol-dateslider">
+                                    <div class="slider">
+                                        <div class="knob main" style="transform: translate3d(0px, 0px, 0px);"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                            
+                            <div class="date-controls">
+                                <div class="control-group">
+                                    <label for="date-selector" class="control-label">Select Date:</label>
+                                    <select id="date-selector" class="date-select">
+                                        {% for date in dates %}
+                                            <option value="{{ date }}">{{ date }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                                <div class="control-group">
+                                    <label for="risk-type" class="control-label">Risk Type:</label>
+                                    <select id="risk-type" class="risk-select">
+                                        <option value="general">General Risk</option>
+                                        <option value="drought">Drought Risk</option>
+                                        <option value="flood">Flood Risk</option>
+                                        <option value="pest">Pest Risk</option>
+                                    </select>
+                                </div>
+                            </div>
+                            
+                            <button id="animated-map-btn" class="btn btn-primary w-100 mt-3">
+                                <i class="fas fa-film me-2"></i> View Animated Forecast
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Analytics Summary -->
+                <div class="analytics-summary">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <div class="card-title">Dashboard Overview</div>
+                            <div class="card-header-actions">
+                                <button class="map-control-btn" id="refresh-summary" aria-label="Refresh data">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="map-control-btn" aria-label="Download report">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-grid">
+                                <div class="metric-card">
+                                    <div class="metric-title">
+                                        <i class="fas fa-map-marker-alt"></i> Total Parcels
+                                    </div>
+                                    <div class="metric-value" id="total-parcels">2,458</div>
+                                    <div class="metric-trend trend-up">
+                                        <i class="fas fa-arrow-up me-1"></i> 12% from last month
+                                    </div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-title">
+                                        <i class="fas fa-exclamation-triangle"></i> High Risk Areas
+                                    </div>
+                                    <div class="metric-value" id="high-risk-areas">386</div>
+                                    <div class="metric-trend trend-down">
+                                        <i class="fas fa-arrow-down me-1"></i> 5% from last month
+                                    </div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-title">
+                                        <i class="fas fa-shield-alt"></i> Insured Parcels
+                                    </div>
+                                    <div class="metric-value" id="insured-parcels">1,873</div>
+                                    <div class="metric-trend trend-up">
+                                        <i class="fas fa-arrow-up me-1"></i> 8% from last month
+                                    </div>
+                                </div>
+                                <div class="metric-card">
+                                    <div class="metric-title">
+                                        <i class="fas fa-seedling"></i> Crops Monitored
+                                    </div>
+                                    <div class="metric-value">12</div>
+                                    <div class="metric-trend">
+                                        <i class="fas fa-equals me-1"></i> Same as last month
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="crop-metrics">
+                                <h6 class="card-title mb-3">Crop Performance</h6>
+                                <div id="crop-metrics-container">
+                                    <div class="crop-metric">
+                                        <div class="crop-header">
+                                            <div class="crop-name">
+                                                <i class="fas fa-seedling"></i> Corn
+                                            </div>
+                                            <div class="crop-badge">760 Ha</div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Average Yield:</div>
+                                            <div class="stat-value">7.2 ton/ha</div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Drought Risk:</div>
+                                            <div class="risk-indicator risk-medium-text">
+                                                <i class="fas fa-exclamation-circle"></i>
+                                            </div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Flood Risk:</div>
+                                            <div class="risk-indicator risk-low-text">
+                                                <i class="fas fa-check-circle"></i> 12%
+                                            </div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Pest Risk:</div>
+                                            <div class="risk-indicator risk-high-text">
+                                                <i class="fas fa-exclamation-triangle"></i> 68%
+                                            </div>
+                                        </div>
+                                    </div>
+                                    
+                                    <div class="crop-metric">
+                                        <div class="crop-header">
+                                            <div class="crop-name">
+                                                <i class="fas fa-seedling"></i> Wheat
+                                            </div>
+                                            <div class="crop-badge">530 Ha</div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Average Yield:</div>
+                                            <div class="stat-value">5.8 ton/ha</div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Drought Risk:</div>
+                                            <div class="risk-indicator risk-high-text">
+                                                <i class="fas fa-exclamation-triangle"></i> 72%
+                                            </div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Flood Risk:</div>
+                                            <div class="risk-indicator risk-low-text">
+                                                <i class="fas fa-check-circle"></i> 8%
+                                            </div>
+                                        </div>
+                                        <div class="crop-stat">
+                                            <div class="stat-label">Pest Risk:</div>
+                                            <div class="risk-indicator risk-medium-text">
+                                                <i class="fas fa-exclamation-circle"></i> 34%
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Alerts Section -->
+                <div class="alerts-section">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <div class="card-title">Risk Alerts</div>
+                            <div class="card-header-actions">
+                                <button class="map-control-btn" id="refresh-alerts" aria-label="Refresh alerts">
+                                    <i class="fas fa-sync-alt"></i>
+                                </button>
+                                <button class="map-control-btn" aria-label="Filter alerts">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <button class="map-control-btn" aria-label="Alert settings">
+                                    <i class="fas fa-cog"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div id="no-alerts" style="display: none;" class="text-center py-4">
+                                <i class="fas fa-check-circle text-success fa-3x mb-3"></i>
+                                <h5>No active alerts at this time</h5>
+                                <p class="text-muted">All monitored parameters are within normal ranges</p>
+                            </div>
+                            
+                            <div class="alerts-container" id="alerts-list">
+                                <div class="alert-item">
+                                    <div class="alert-icon high">
+                                        <i class="fas fa-exclamation-triangle"></i>
+                                    </div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">HIGH ALERT: Critical Drought Risk</div>
+                                        <div class="alert-message">Drought risk has exceeded critical threshold in Sector 4 (North Region). Expected yield reduction of 35-40% if no irrigation is applied within 72 hours.</div>
+                                        <div class="alert-meta">
+                                            <div>
+                                                <i class="fas fa-calendar"></i> Jan 15, 2025
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-map-marker-alt"></i> Sector 4
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-seedling"></i> Wheat
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert-actions">
+                                        <button class="alert-btn">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                        <button class="alert-btn">
+                                            <i class="fas fa-thumbtack"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert-item">
+                                    <div class="alert-icon medium">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    </div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">MEDIUM ALERT: Pest Outbreak Risk</div>
+                                        <div class="alert-message">Increased risk of armyworm infestation detected in Eastern parcels. Preventive measures recommended within 5-7 days.</div>
+                                        <div class="alert-meta">
+                                            <div>
+                                                <i class="fas fa-calendar"></i> Jan 15, 2025
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-map-marker-alt"></i> Eastern Region
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-seedling"></i> Corn
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert-actions">
+                                        <button class="alert-btn">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                        <button class="alert-btn">
+                                            <i class="fas fa-thumbtack"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                
+                                <div class="alert-item">
+                                    <div class="alert-icon medium">
+                                        <i class="fas fa-exclamation-circle"></i>
+                                    </div>
+                                    <div class="alert-content">
+                                        <div class="alert-title">MEDIUM ALERT: Flooding Probability</div>
+                                        <div class="alert-message">Increased flooding risk in low elevation parcels near River Delta due to predicted heavy rainfall. Consider preventive drainage.</div>
+                                        <div class="alert-meta">
+                                            <div>
+                                                <i class="fas fa-calendar"></i> Jan 15, 2025
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-map-marker-alt"></i> River Delta
+                                            </div>
+                                            <div>
+                                                <i class="fas fa-seedling"></i> Multiple Crops
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="alert-actions">
+                                        <button class="alert-btn">
+                                            <i class="fas fa-envelope"></i>
+                                        </button>
+                                        <button class="alert-btn">
+                                            <i class="fas fa-thumbtack"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Full Yield Predictions Table - Positioned below the map with the same width -->
+                
+                    <div class="insurance-section">
+                        <div class="card mb-2">
+                            <div class="card-header">
+                                <div class="card-title">
+                                    <i class="fas fa-chart-line me-2"></i> All Yield Predictions
+                                </div>
+                                <div class="card-header-actions">
+                                    <button class="map-control-btn" aria-label="Filter" data-tooltip="Filter results">
+                                        <i class="fas fa-filter"></i>
+                                    </button>
+                                    <button class="map-control-btn" aria-label="Download CSV" onclick="exportTableToCSV('full-yield-predictions-table', 'all_yield_predictions.csv')">
+                                        <i class="fas fa-download"></i>
+                                    </button>
+                                    <button class="map-control-btn" aria-label="Refresh data">
+                                        <i class="fas fa-sync-alt"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between align-items-center mb-4">
+                                    <div class="d-flex align-items-center">
+                                        <div class="input-group me-3" style="width: 300px;">
+                                            <span class="input-group-text bg-light border-end-0">
+                                                <i class="fas fa-search text-muted"></i>
+                                            </span>
+                                            <input type="text" id="prediction-search" class="form-control border-start-0" placeholder="Search parcels, crops...">
+                                        </div>
+                                        <select class="form-select me-2" id="crop-filter" style="width: auto;">
+                                            <option value="">All Crops</option>
+                                            <option value="corn">Corn</option>
+                                            <option value="wheat">Wheat</option>
+                                            <option value="soybeans">Soybeans</option>
+                                            <option value="rice">Rice</option>
+                                            <option value="barley">Barley</option>
+                                        </select>
+                                        <select class="form-select" id="risk-filter" style="width: auto;">
+                                            <option value="">All Risk Levels</option>
+                                            <option value="high">High Risk</option>
+                                            <option value="medium">Medium Risk</option>
+                                            <option value="low">Low Risk</option>
+                                        </select>
+                                    </div>
+                                    <div>
+                                        <span class="text-muted" id="pagination-status">Showing 1-10 of 48 entries</span>
+                                    </div>
+                                    <div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination mb-0" id="pagination-controls">
+                                                <li class="page-item disabled">
+                                                    <a class="page-link" href="#" aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#" aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                                
+                                <div id="error-container"></div>
+                                
+                                <div class="table-responsive position-relative">
+                                    <!-- Loading overlay -->
+                                    <div class="loading-overlay" id="yield-loading-overlay">
+                                        <div class="loading-message">
+                                            <div class="loading-spinner">
+                                                <div class="spinner-border text-primary" role="status">
+                                                    <span class="visually-hidden">Loading...</span>
+                                                </div>
+                                            </div>
+                                            <span>Loading yield predictions...</span>
+                                        </div>
+                                    </div>
+                                    <table class="table table-hover" id="full-yield-predictions-table">
+                                        <thead>
+                                            <tr>
+                                                <th class="sortable-header" data-sort="parcel_id" style="width: 100px;">
+                                                    <div class="d-flex align-items-center">
+                                                        <span>Parcel ID</span>
+                                                        <i class="fas fa-sort ms-2 text-muted sort-icon" style="font-size: 0.8rem;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="sortable-header" data-sort="crop">
+                                                    <div class="d-flex align-items-center">
+                                                        <span>Crop</span>
+                                                        <i class="fas fa-sort ms-2 text-muted sort-icon" style="font-size: 0.8rem;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="sortable-header sort-desc" data-sort="predicted_yield">
+                                                    <div class="d-flex align-items-center">
+                                                        <span>Predicted Yield</span>
+                                                        <i class="fas fa-sort-down ms-2 text-primary sort-icon" style="font-size: 0.8rem;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="sortable-header" data-sort="confidence">
+                                                    <div class="d-flex align-items-center">
+                                                        <span>Confidence</span>
+                                                        <i class="fas fa-sort ms-2 text-muted sort-icon" style="font-size: 0.8rem;"></i>
+                                                    </div>
+                                                </th>
+                                                <th class="sortable-header" data-sort="drought_risk">Drought Risk</th>
+                                                <th class="sortable-header" data-sort="flood_risk">Flood Risk</th>
+                                                <th class="sortable-header" data-sort="pest_risk">Pest Risk</th>
+                                                <th>Actions</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody id="yield-predictions-body">
+                                            <!-- Yield predictions data will be loaded dynamically -->
+                                        </tbody>
+                                    </table>
+                                </div>
+                                
+                                <div class="d-flex justify-content-between align-items-center mt-4">
+                                    <div>
+                                        <span class="text-muted" id="pagination-info">Showing 1-10 of 48 entries</span>
+                                    </div>
+                                    <div>
+                                        <nav aria-label="Page navigation">
+                                            <ul class="pagination mb-0">
+                                                <li class="page-item disabled">
+                                                    <a class="page-link" href="#" aria-label="Previous">
+                                                        <span aria-hidden="true">&laquo;</span>
+                                                    </a>
+                                                </li>
+                                                <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">4</a></li>
+                                                <li class="page-item"><a class="page-link" href="#">5</a></li>
+                                                <li class="page-item">
+                                                    <a class="page-link" href="#" aria-label="Next">
+                                                        <span aria-hidden="true">&raquo;</span>
+                                                    </a>
+                                                </li>
+                                            </ul>
+                                        </nav>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    
+                
+                <!-- Yield Predictions Section -->
+                <div class="predictions-section">
+                    <div class="card h-100">
+                        <div class="card-header">
+                            <div class="card-title">Yield Predictions</div>
+                            <div class="card-header-actions">
+                                <button class="map-control-btn" aria-label="Download CSV" onclick="exportTableToCSV('yield-predictions-table', 'yield_predictions.csv')">
+                                    <i class="fas fa-download"></i>
+                                </button>
+                                <button class="map-control-btn" aria-label="View details">
+                                    <i class="fas fa-expand"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="prediction-tabs">
+                                <div class="prediction-tab active">Summary</div>
+                                <div class="prediction-tab">By Parcel</div>
+                                <div class="prediction-tab">Timeline</div>
+                            </div>
+                            
+                            <div id="yield-predictions">
+                                <table class="prediction-table" id="yield-predictions-table">
+                                    <thead>
+                                        <tr>
+                                            <th>Parcel</th>
+                                            <th>Crop</th>
+                                            <th>Prediction</th>
+                                            <th>Risk</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>
+                                                <span class="parcel-id">Chacra_San_Javier_Sokolov_1</span>
+                                            </td>
+                                            <td>
+                                                <div class="d-flex align-items-center">
+                                                    <i class="fas fa-seedling text-success me-2"></i>
+                                                    <span>Soja</span>
+                                                </div>
+                                            </td>
+                                            <td>
+                                                <strong>3.5 t/ha</strong>
+                                                <div class="confidence-badge badge-high">85%</div>
+                                            </td>
+                                            <td>
+                                                <div class="risk-indicator risk-medium-text">
+                                                    <i class="fas fa-exclamation-circle"></i>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Insurance Products -->
+                <div class="insurance-section">
+                    <div class="card">
+                        <div class="card-header">
+                            <div class="card-title">Available Microinsurance Products</div>
+                            <div class="card-header-actions">
+                                <button class="map-control-btn" aria-label="Filter products">
+                                    <i class="fas fa-filter"></i>
+                                </button>
+                                <button class="map-control-btn" aria-label="Compare">
+                                    <i class="fas fa-columns"></i>
+                                </button>
+                            </div>
+                        </div>
+                        <div class="card-body">
+                            <div class="insurance-products">
+                                <div class="product-card">
+                                    <div class="product-badge">Bestseller</div>
+                                    <div class="product-header">
+                                        <div class="product-pattern"></div>
+                                        <h3 class="product-title">DroughtShield</h3>
+                                        <div class="product-subtitle">Parametric drought protection</div>
+                                        <div class="product-price">
+                                            From <span class="price-amount">$45</span> <span class="price-unit">/ha</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-body">
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Automatic payouts when rainfall drops below 40% of historical average
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Up to $800/ha coverage based on crop value
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Satellite-based monitoring with 7-day validation period
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                No paperwork or claims process needed
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="product-cta">
+                                        <button class="btn-product">Calculate Premium</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="product-card">
+                                    <div class="product-header">
+                                        <div class="product-pattern"></div>
+                                        <h3 class="product-title">FloodGuard</h3>
+                                        <div class="product-subtitle">Flood & excess rainfall protection</div>
+                                        <div class="product-price">
+                                            From <span class="price-amount">$38</span> <span class="price-unit">/ha</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-body">
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Triggers when rainfall exceeds 150% of monthly average
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Up to $600/ha coverage for flood damage
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Combined weather station and satellite data verification
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Includes river overflow protection for parcels within 5km of waterways
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="product-cta">
+                                        <button class="btn-product">Calculate Premium</button>
+                                    </div>
+                                </div>
+                                
+                                <div class="product-card">
+                                    <div class="product-badge">New</div>
+                                    <div class="product-header">
+                                        <div class="product-pattern"></div>
+                                        <h3 class="product-title">CropGuard Complete</h3>
+                                        <div class="product-subtitle">Comprehensive protection package</div>
+                                        <div class="product-price">
+                                            From <span class="price-amount">$72</span> <span class="price-unit">/ha</span>
+                                        </div>
+                                    </div>
+                                    <div class="product-body">
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Multi-risk coverage: drought, flood, frost, and pest outbreaks
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Up to $1,200/ha coverage with flexible thresholds
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Early warning alerts and risk mitigation recommendations
+                                            </div>
+                                        </div>
+                                        <div class="product-feature">
+                                            <div class="feature-icon">
+                                                <i class="fas fa-check"></i>
+                                            </div>
+                                            <div class="feature-text">
+                                                Includes access to premium AgroRisk forecasting tools
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="product-cta">
+                                        <button class="btn-product">Calculate Premium</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <!-- Footer -->
+        <footer class="app-footer">
+            <div class="footer-copyright">
+                &copy; 2025 AI Deep Economics AgroRisk Technologies. All rights reserved.
+            </div>
+            <div class="footer-links">
+                <a href="#" class="footer-link">Privacy Policy</a>
+                <a href="#" class="footer-link">Terms of Service</a>
+                <a href="#" class="footer-link">Contact Support</a>
+                <a href="#" class="footer-link">Documentation</a>
+            </div>
+        </footer>
+    </div>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let allDates = [];
+        let isPlaying = false;
+        let animationInterval;
+        let sidebarCollapsed = false;
+        
+        // DOM elements
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebar-toggle');
+        const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+        const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+        const dateSelector = document.getElementById('date-selector');
+        const riskTypeSelector = document.getElementById('risk-type');
+        const playButton = document.getElementById('play-button');
+        const currentDateDisplay = document.getElementById('current-date');
+        const animatedMapBtn = document.getElementById('animated-map-btn');
+        const zoomInBtn = document.getElementById('zoom-in');
+        const zoomOutBtn = document.getElementById('zoom-out');
+        const resetMapBtn = document.getElementById('reset-map');
+        const sliderThumb = document.querySelector('.slider-thumb');
+        const sliderTrack = document.querySelector('.slider-track');
+        const themeToggle = document.getElementById('theme-toggle');
+        
+        // Simulate dates if not provided by server
+        if (dateSelector && dateSelector.options.length === 0) {
+            const startDate = new Date('2025-01-15');
+            const endDate = new Date('2025-02-14');
+            const dateArray = [];
+            
+            let currentDate = new Date(startDate);
+            while (currentDate <= endDate) {
+                const dateString = currentDate.toISOString().split('T')[0];
+                dateArray.push(dateString);
+                
+                // Create and append option
+                const option = document.createElement('option');
+                option.value = dateString;
+                option.textContent = dateString;
+                dateSelector.appendChild(option);
+                
+                // Increment date
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            
+            allDates = dateArray;
+        } else if (dateSelector) {
+            // Collect all available dates from the selector
+            Array.from(dateSelector.options).forEach(option => {
+                allDates.push(option.value);
+            });
+        }
+        
+        // Global variables for map data
+        let mapInstance = null;
+        let geoJsonLayer = null;
+        let colorScale = null;
+        let mapInitialized = false;
+        let mapDataCache = {}; // Cache for map data to avoid unnecessary API calls
+        
+        // Initialize the map only once
+        function initializeMap(date, riskType) {
+            const mapFrame = document.getElementById('map-frame');
+            mapFrame.src = `/map?date=${date}&risk_type=${riskType}`;
+            
+            // Listen for messages from the iframe when map is ready
+            window.addEventListener('message', function(event) {
+                if (event.data && event.data.status === 'mapReady') {
+                    console.log('Map is ready for data updates');
+                    mapInitialized = true;
+                    // Preload data for smooth transitions
+                    preloadMapData(allDates, riskType);
+                }
+            });
+        }
+        
+        // Preload map data for smoother transitions
+        function preloadMapData(dates, riskType) {
+            // Preload first few dates to make initial transitions smooth
+            const datesToPreload = dates.slice(0, Math.min(5, dates.length));
+            console.log('Preloading data for dates:', datesToPreload);
+            
+            datesToPreload.forEach(date => {
+                if (!mapDataCache[date]) {
+                    fetch(`/map_data?date=${date}&risk_type=${riskType}`)
+                        .then(response => response.json())
+                        .then(data => {
+                            mapDataCache[date] = data;
+                            console.log(`Preloaded data for ${date}`);
+                        })
+                        .catch(error => console.error('Error preloading map data:', error));
+                }
+            });
+        }
+        
+        // Load map with smooth transitions
+        function loadMap(date, riskType) {
+            if (!mapInitialized) {
+                // Initialize map if not already done
+                initializeMap(date, riskType);
+                return;
+            }
+            
+            // Check if we have the data in cache, otherwise fetch it
+            if (mapDataCache[date]) {
+                updateMapWithData(mapDataCache[date]);
+            } else {
+                // Show loading indicator
+                console.log(`Loading data for ${date}`);
+                
+                // Fetch data from API
+                fetch(`/map_data?date=${date}&risk_type=${riskType}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        // Cache the data for future use
+                        mapDataCache[date] = data;
+                        
+                        // Update the map with the new data
+                        updateMapWithData(data);
+                        
+                        // Preload next date if available
+                        const currentIndex = allDates.indexOf(date);
+                        if (currentIndex < allDates.length - 1) {
+                            const nextDate = allDates[currentIndex + 1];
+                            if (!mapDataCache[nextDate]) {
+                                fetch(`/map_data?date=${nextDate}&risk_type=${riskType}`)
+                                    .then(response => response.json())
+                                    .then(nextData => {
+                                        mapDataCache[nextDate] = nextData;
+                                    })
+                                    .catch(error => console.error('Error preloading next data:', error));
+                            }
+                        }
+                    })
+                    .catch(error => console.error('Error loading map data:', error));
+            }
+        }
+        
+        // Update the map with new data
+        function updateMapWithData(data) {
+            // Send the data to the map iframe
+            const mapFrame = document.getElementById('map-frame');
+            if (mapFrame && mapFrame.contentWindow) {
+                mapFrame.contentWindow.postMessage({ 
+                    command: 'updateData', 
+                    data: data 
+                }, '*');
+            }
+        }
+        
+        // Load yield predictions for the selected date
+        async function loadYieldPredictions(date) {
+            try {
+                console.log("Loading yield predictions for date:", date);
+                
+                // Show loading state
+                const tableBody = document.getElementById('yield-predictions-body');
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center"><div class="spinner-border text-primary" role="status"><span class="visually-hidden">Loading...</span></div></td></tr>';
+                
+                // Show loading overlay
+                const loadingOverlay = document.getElementById('yield-loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.classList.add('active');
+                }
+                
+                // Clear any existing error messages
+                const errorContainer = document.getElementById('error-container');
+                if (errorContainer) {
+                    errorContainer.innerHTML = '';
+                }
+                
+                // Fetch data from API
+                const response = await fetch(`/api/yield_predictions?date=${date}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const predictions = await response.json();
+                
+                console.log("Raw API response:", predictions);
+                console.log("Number of predictions from API:", predictions.length);
+                
+                // Store all predictions
+                allYieldPredictions = predictions;
+                
+                // Apply initial sort
+                sortPredictions(currentSortField, currentSortDirection);
+                
+                // Apply any filters
+                applyFilters();
+                
+                // Update the pagination status
+                updatePaginationStatus();
+                
+                // Hide loading overlay
+                if (loadingOverlay) {
+                    loadingOverlay.classList.remove('active');
+                }
+                
+                console.log(`Loaded ${predictions.length} yield predictions for date: ${date}`);
+                
+            } catch (error) {
+                console.error('Error loading yield predictions:', error);
+                
+                // Hide loading overlay
+                const loadingOverlay = document.getElementById('yield-loading-overlay');
+                if (loadingOverlay) {
+                    loadingOverlay.classList.remove('active');
+                }
+                
+                // Display error message
+                const errorContainer = document.getElementById('error-container');
+                if (errorContainer) {
+                    errorContainer.innerHTML = `
+                        <div class="error-message">
+                            <i class="fas fa-exclamation-circle"></i>
+                            <div>
+                                <strong>Error loading yield predictions</strong>
+                                <p class="mb-0">${error.message}</p>
+                            </div>
+                        </div>
+                    `;
+                }
+                
+                const tableBody = document.getElementById('yield-predictions-body');
+                tableBody.innerHTML = `<tr><td colspan="8" class="text-center text-danger">Error loading data. Please try again later.</td></tr>`;
+            }
+        }
+        
+        // Apply filters to the predictions
+        function applyFilters() {
+            const searchInput = document.getElementById('prediction-search');
+            const cropFilter = document.getElementById('crop-filter');
+            const riskFilter = document.getElementById('risk-filter');
+            
+            // Get filter values
+            const searchTerm = searchInput ? searchInput.value.toLowerCase() : '';
+            const cropValue = cropFilter ? cropFilter.value.toLowerCase() : '';
+            const riskValue = riskFilter ? riskFilter.value.toLowerCase() : '';
+            
+            // Filter the predictions
+            filteredPredictions = allYieldPredictions.filter(prediction => {
+                // Search filter
+                const matchesSearch = !searchTerm || 
+                    prediction.parcel_id.toLowerCase().includes(searchTerm) ||
+                    (prediction.crop && prediction.crop.toLowerCase().includes(searchTerm));
+                
+                // Crop filter
+                const matchesCrop = !cropValue || 
+                    (prediction.crop && prediction.crop.toLowerCase() === cropValue);
+                
+                // Risk filter
+                let matchesRisk = true;
+                if (riskValue) {
+                    const droughtRisk = prediction.drought_risk || 0;
+                    const floodRisk = prediction.flood_risk || 0;
+                    const pestRisk = prediction.pest_risk || 0;
+                    const maxRisk = Math.max(droughtRisk, floodRisk, pestRisk);
+                    
+                    if (riskValue === 'high') {
+                        matchesRisk = maxRisk >= 60;
+                    } else if (riskValue === 'medium') {
+                        matchesRisk = maxRisk >= 30 && maxRisk < 60;
+                    } else if (riskValue === 'low') {
+                        matchesRisk = maxRisk < 30;
+                    }
+                }
+                
+                return matchesSearch && matchesCrop && matchesRisk;
+            });
+            
+            // Render the current page
+            renderCurrentPage();
+        }
+        
+        // Sort predictions
+        function sortPredictions(field, direction) {
+            currentSortField = field;
+            currentSortDirection = direction;
+            
+            // Update sort indicators in UI
+            const headers = document.querySelectorAll('.sortable-header');
+            headers.forEach(header => {
+                const headerField = header.getAttribute('data-sort');
+                const sortIcon = header.querySelector('.sort-icon');
+                
+                if (headerField === field) {
+                    header.classList.remove('sort-asc', 'sort-desc');
+                    header.classList.add(direction === 'asc' ? 'sort-asc' : 'sort-desc');
+                    
+                    if (sortIcon) {
+                        sortIcon.className = `fas fa-sort-${direction === 'asc' ? 'up' : 'down'} ms-2 text-primary sort-icon`;
+                    }
+                } else {
+                    header.classList.remove('sort-asc', 'sort-desc');
+                    
+                    if (sortIcon) {
+                        sortIcon.className = 'fas fa-sort ms-2 text-muted sort-icon';
+                    }
+                }
+            });
+            
+            // Sort the predictions
+            filteredPredictions.sort((a, b) => {
+                let valueA = a[field] !== undefined ? a[field] : 0;
+                let valueB = b[field] !== undefined ? b[field] : 0;
+                
+                // Handle string values
+                if (typeof valueA === 'string' && typeof valueB === 'string') {
+                    return direction === 'asc' 
+                        ? valueA.localeCompare(valueB) 
+                        : valueB.localeCompare(valueA);
+                }
+                
+                // Handle numeric values
+                return direction === 'asc' ? valueA - valueB : valueB - valueA;
+            });
+            
+            // Render the current page
+            renderCurrentPage();
+        }
+        
+        // Render the current page of predictions
+        function renderCurrentPage() {
+            const tableBody = document.getElementById('yield-predictions-body');
+            
+            if (!tableBody) return;
+            
+            // Clear the table
+            tableBody.innerHTML = '';
+            
+            if (filteredPredictions.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="8" class="text-center">No yield predictions available matching your filters</td></tr>';
+                return;
+            }
+            
+            // Calculate start and end index for current page
+            const start = (currentPage - 1) * itemsPerPage;
+            const end = Math.min(start + itemsPerPage, filteredPredictions.length);
+            
+            // Get current page predictions
+            const currentPagePredictions = filteredPredictions.slice(start, end);
+            
+            // Populate table with predictions
+            currentPagePredictions.forEach(prediction => {
+                // Determine confidence badge class
+                let confidenceBadgeClass = 'badge-low';
+                if (prediction.confidence >= 80) {
+                    confidenceBadgeClass = 'badge-high';
+                } else if (prediction.confidence >= 60) {
+                    confidenceBadgeClass = 'badge-medium';
+                }
+                
+                // Determine risk indicator classes
+                const droughtRiskClass = getRiskClass(prediction.drought_risk);
+                const floodRiskClass = getRiskClass(prediction.flood_risk);
+                const pestRiskClass = getRiskClass(prediction.pest_risk);
+                
+                // Create row
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td><span class="parcel-id">${prediction.parcel_id}</span></td>
+                    <td>
+                        <div class="d-flex align-items-center">
+                            <i class="fas fa-seedling text-success me-2"></i>
+                            <span>${prediction.crop || 'Unknown'}</span>
+                        </div>
+                    </td>
+                    <td><strong>${(typeof prediction.predicted_yield === 'number' ? prediction.predicted_yield.toFixed(2) : '0.00')} t/ha</strong></td>
+                    <td><span class="confidence-badge ${confidenceBadgeClass}">${typeof prediction.confidence === 'number' ? prediction.confidence : 0}%</span></td>
+                    <td><span class="risk-indicator ${droughtRiskClass.textClass}"><i class="fas ${droughtRiskClass.iconClass}"></i> ${typeof prediction.drought_risk === 'number' ? Math.round(prediction.drought_risk) : 0}%</span></td>
+                    <td><span class="risk-indicator ${floodRiskClass.textClass}"><i class="fas ${floodRiskClass.iconClass}"></i> ${typeof prediction.flood_risk === 'number' ? Math.round(prediction.flood_risk) : 0}%</span></td>
+                    <td><span class="risk-indicator ${pestRiskClass.textClass}"><i class="fas ${pestRiskClass.iconClass}"></i> ${typeof prediction.pest_risk === 'number' ? Math.round(prediction.pest_risk) : 0}%</span></td>
+                    <td>
+                        <div class="d-flex">
+                            <button class="btn btn-sm btn-outline-primary me-1" onclick="viewParcelDetails('${prediction.parcel_id}')"><i class="fas fa-eye"></i></button>
+                            <button class="btn btn-sm btn-outline-secondary" onclick="viewYieldTrend('${prediction.parcel_id}')"><i class="fas fa-chart-line"></i></button>
+                        </div>
+                    </td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Update pagination
+            updatePagination();
+        }
+        
+        // Update pagination controls
+        function updatePagination() {
+            const totalPages = Math.ceil(filteredPredictions.length / itemsPerPage);
+            const paginationControls = document.getElementById('pagination-controls');
+            
+            if (!paginationControls) return;
+            
+            // Create pagination HTML
+            let paginationHTML = `
+                <li class="page-item ${currentPage === 1 ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage - 1}); return false;" aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            // Add page numbers
+            for (let i = 1; i <= totalPages; i++) {
+                // Only show a limited number of pages
+                if (
+                    i === 1 || 
+                    i === totalPages || 
+                    (i >= currentPage - 1 && i <= currentPage + 1)
+                ) {
+                    paginationHTML += `
+                        <li class="page-item ${i === currentPage ? 'active' : ''}">
+                            <a class="page-link" href="#" onclick="changePage(${i}); return false;">${i}</a>
+                        </li>
+                    `;
+                } else if (
+                    (i === currentPage - 2 && currentPage > 3) || 
+                    (i === currentPage + 2 && currentPage < totalPages - 2)
+                ) {
+                    paginationHTML += `
+                        <li class="page-item disabled">
+                            <span class="page-link">...</span>
+                        </li>
+                    `;
+                }
+            }
+            
+            paginationHTML += `
+                <li class="page-item ${currentPage === totalPages ? 'disabled' : ''}">
+                    <a class="page-link" href="#" onclick="changePage(${currentPage + 1}); return false;" aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            `;
+            
+            paginationControls.innerHTML = paginationHTML;
+            
+            // Update pagination status
+            updatePaginationStatus();
+        }
+        
+        // Update pagination status information
+        function updatePaginationStatus() {
+            const paginationInfo = document.getElementById('pagination-info');
+            const paginationStatus = document.getElementById('pagination-status');
+            const totalItems = filteredPredictions.length;
+            const start = totalItems === 0 ? 0 : (currentPage - 1) * itemsPerPage + 1;
+            const end = Math.min(start + itemsPerPage - 1, totalItems);
+            
+            const statusText = `Showing ${start}-${end} of ${totalItems} entries`;
+            
+            if (paginationInfo) {
+                paginationInfo.textContent = statusText;
+            }
+            
+            if (paginationStatus) {
+                paginationStatus.textContent = statusText;
+            }
+        }
+        
+        // Change the current page
+        function changePage(page) {
+            if (page < 1 || page > Math.ceil(filteredPredictions.length / itemsPerPage)) {
+                return;
+            }
+            
+            currentPage = page;
+            renderCurrentPage();
+        }
+        
+        // Change items per page
+        function changeItemsPerPage(count) {
+            itemsPerPage = count;
+            currentPage = 1;  // Reset to first page
+            renderCurrentPage();
+        }
+        
+        // Global variables for yield predictions
+        let allYieldPredictions = [];
+        let currentPage = 1;
+        let itemsPerPage = 25;
+        let currentSortField = 'predicted_yield';
+        let currentSortDirection = 'desc';
+        let filteredPredictions = [];
+        
+        // Helper function to determine risk class based on risk value
+        function getRiskClass(riskValue) {
+            if (riskValue >= 60) {
+                return {
+                    textClass: 'risk-high-text',
+                    iconClass: 'fa-times-circle'
+                };
+            } else if (riskValue >= 30) {
+                return {
+                    textClass: 'risk-medium-text',
+                    iconClass: 'fa-exclamation-circle'
+                };
+            } else {
+                return {
+                    textClass: 'risk-low-text',
+                    iconClass: 'fa-check-circle'
+                };
+            }
+        }
+        
+        // Placeholder functions for parcel detail views
+        function viewParcelDetails(parcelId) {
+            console.log(`View details for parcel: ${parcelId}`);
+            // In a real implementation, this would open a modal or navigate to a details page
+            alert(`Viewing details for parcel: ${parcelId}`);
+        }
+        
+        function viewYieldTrend(parcelId) {
+            console.log(`View yield trend for parcel: ${parcelId}`);
+            // In a real implementation, this would open a chart or navigate to a trends page
+            alert(`Viewing yield trend for parcel: ${parcelId}`);
+        }
+        
+        // Load risk alerts for the selected date
+        let lastRequestedAlertsDate = null;
+        let currentAlertsDisplayed = false;
+        
+        async function loadAlerts(date) {
+            const requestedDate = date;
+            lastRequestedAlertsDate = requestedDate;
+            
+            try {
+                const response = await fetch(`/api/risk_data?date=${date}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // If a newer request came in, abandon this one
+                if (lastRequestedAlertsDate !== requestedDate) {
+                    console.log('Abandoning stale alert request for', requestedDate);
+                    return;
+                }
+                
+                // Filter alerts (non-null)
+                const alerts = data.filter(item => item.alert);
+                
+                console.log(`Date: ${date}, Alerts found: ${alerts.length}`);
+                if (alerts.length > 0) {
+                    console.log('Alert data:', alerts);
+                    
+                    document.getElementById('no-alerts').style.display = 'none';
+                    
+                    // Clear previous alerts
+                    const alertsList = document.getElementById('alerts-list');
+                    alertsList.innerHTML = '';
+                    
+                    // Populate the alerts list with the fetched data
+                    alerts.forEach(alert => {
+                        const alertDiv = document.createElement('div');
+                        alertDiv.className = 'alert-item';
+                        
+                        const alertType = alert.alert_type || 'general';
+                        const alertSeverity = alert.drought_probability > 70 || alert.flood_probability > 70 || alert.hail_probability > 70 ? 'high' : 'medium';
+                        
+                        alertDiv.innerHTML = `
+                            <div class="alert-icon ${alertSeverity}">
+                                <i class="fas fa-${alertType === 'drought' ? 'sun' : alertType === 'flood' ? 'water' : alertType === 'pest' ? 'bug' : 'exclamation-triangle'}"></i>
+                            </div>
+                            <div class="alert-content">
+                                <div class="alert-title">${alertSeverity.toUpperCase()} ALERT: ${alert.alert}</div>
+                                <div class="alert-message">Risk level has exceeded threshold for ${alert.parcel_id}.</div>
+                                <div class="alert-meta">
+                                    <div>
+                                        <i class="fas fa-calendar"></i> ${alert.date}
+                                    </div>
+                                    <div>
+                                        <i class="fas fa-map-marker-alt"></i> ${alert.parcel_id}
+                                    </div>
+                                </div>
+                            </div>
+                        `;
+                        
+                        alertsList.appendChild(alertDiv);
+                    });
+                    
+                    currentAlertsDisplayed = true;
+                } else {
+                    // Only show "no alerts" if we haven't found any alerts in this session yet
+                    document.getElementById('no-alerts').style.display = 'block';
+                    document.getElementById('alerts-list').innerHTML = '';
+                    currentAlertsDisplayed = false;
+                }
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+            }
+        }
+        
+        // Fetch and update dashboard summary data
+        async function updateDashboardSummary() {
+            try {
+                const response = await fetch('/api/dashboard_summary');
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+                
+                // In a real implementation, you would update the dashboard metrics with the fetched data
+                console.log("Dashboard summary loaded:", data);
+                
+                // For demo purposes, we'll use the existing data
+            } catch (error) {
+                console.error('Error fetching dashboard summary:', error);
+            }
+        }
+        
+        // Update the current date display
+        function updateCurrentDateDisplay(dateString) {
+            // Convert YYYY-MM-DD to more readable format
+            const date = new Date(dateString);
+            const options = { month: 'long', day: 'numeric', year: 'numeric' };
+            currentDateDisplay.textContent = date.toLocaleDateString('en-US', options);
+        }
+        
+        // Update slider position
+        function updateSliderPosition(value, max) {
+            const percentage = (value / max) * 100;
+            sliderThumb.style.left = `${percentage}%`;
+            sliderTrack.style.width = `${percentage}%`;
+        }
+        
+        // Toggle sidebar
+        function toggleSidebar() {
+            sidebarCollapsed = !sidebarCollapsed;
+            sidebar.classList.toggle('sidebar-collapsed', sidebarCollapsed);
+            sidebarToggle.innerHTML = sidebarCollapsed ? 
+                '<i class="fas fa-chevron-right"></i>' : 
+                '<i class="fas fa-chevron-left"></i>';
+        }
+        
+        // Toggle mobile sidebar
+        function toggleMobileSidebar() {
+            sidebar.classList.toggle('active');
+            sidebarBackdrop.classList.toggle('active');
+        }
+        
+        // Toggle dark/light theme
+        function toggleTheme() {
+            document.body.classList.toggle('dark-theme');
+        }
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Try to preselect a date that has alerts
+            const datesWithAlerts = ["2025-02-07", "2025-02-08", "2025-02-13"];
+            
+            if (dateSelector) {
+                // Check if any of our known alert dates are in the dropdown
+                for (const alertDate of datesWithAlerts) {
+                    const option = Array.from(dateSelector.options).find(opt => opt.value === alertDate);
+                    if (option) {
+                        dateSelector.value = alertDate;
+                        break;
+                    }
+                }
+                
+                // Load initial data
+                if (dateSelector.value) {
+                    loadMap(dateSelector.value, riskTypeSelector.value);
+                    loadYieldPredictions(dateSelector.value);
+                    loadAlerts(dateSelector.value);
+                    updateCurrentDateDisplay(dateSelector.value);
+                }
+            }
+            
+            updateDashboardSummary();
+            
+            // Sidebar toggle event listener
+            if (sidebarToggle) {
+                sidebarToggle.addEventListener('click', toggleSidebar);
+            }
+            
+            // Mobile menu toggle event listener
+            if (mobileMenuToggle) {
+                mobileMenuToggle.addEventListener('click', toggleMobileSidebar);
+            }
+            
+            // Sidebar backdrop event listener
+            if (sidebarBackdrop) {
+                sidebarBackdrop.addEventListener('click', toggleMobileSidebar);
+            }
+            
+            // Theme toggle event listener
+            if (themeToggle) {
+                themeToggle.addEventListener('change', toggleTheme);
+            }
+            
+            // Update when date changes from dropdown
+            if (dateSelector) {
+                dateSelector.addEventListener('change', function() {
+                    const dateIndex = allDates.indexOf(this.value);
+                    if (dateIndex !== -1) {
+                        updateSliderPosition(dateIndex, allDates.length - 1);
+                    }
+                    
+                    loadMap(this.value, riskTypeSelector.value);
+                    loadYieldPredictions(this.value);
+                    loadAlerts(this.value);
+                    updateCurrentDateDisplay(this.value);
+                });
+            }
+            
+            // Update when risk type changes from dropdown
+            if (riskTypeSelector) {
+                riskTypeSelector.addEventListener('change', function() {
+                    // Update the map with the new risk type
+                    loadMap(dateSelector.value, this.value);
+                    console.log('Risk type changed to:', this.value);
+                });
+            }
+            
+            // Time slider functionality
+            document.querySelector('.time-slider').addEventListener('click', function(e) {
+                // Calculate the clicked position as a percentage
+                const rect = this.getBoundingClientRect();
+                const position = (e.clientX - rect.left) / rect.width;
+                
+                // Convert to a slider index
+                const maxIndex = allDates.length - 1;
+                const clickedIndex = Math.round(position * maxIndex);
+                
+                // Update slider position
+                updateSliderPosition(clickedIndex, maxIndex);
+                
+                // Update data based on the selected date
+                const selectedDate = allDates[clickedIndex];
+                if (selectedDate && dateSelector) {
+                    // Update dropdown to match slider
+                    dateSelector.value = selectedDate;
+                    
+                    loadMap(selectedDate, riskTypeSelector.value);
+                    loadYieldPredictions(selectedDate);
+                    loadAlerts(selectedDate);
+                    updateCurrentDateDisplay(selectedDate);
+                }
+            });
+            
+            // Play/Pause animation
+            if (playButton) {
+                playButton.addEventListener('click', function() {
+                    // Get current risk type from selector
+                    const riskType = riskTypeSelector ? riskTypeSelector.value : 'general';
+                    
+                    // Instead of animating in the main page, open the animated map in the iframe
+                    const mapFrame = document.getElementById('map-frame');
+                    if (mapFrame) {
+                        // Replace the current map with the animated map
+                        mapFrame.src = `/animated_map?risk_type=${riskType}`;
+                        
+                        // Update button appearance
+                        this.innerHTML = '<i class="fas fa-sync-alt"></i>';
+                        this.title = 'Return to regular map';
+                        this.classList.remove('pulse');
+                        
+                        // Change button behavior to switch back to regular map when clicked again
+                        this.removeEventListener('click', arguments.callee);
+                        this.addEventListener('click', function() {
+                            // Switch back to regular map
+                            const currentDate = dateSelector.value;
+                            loadMap(currentDate, riskType);
+                            
+                            // Reset button appearance
+                            this.innerHTML = '<i class="fas fa-play"></i>';
+                            this.title = 'View animation';
+                            this.classList.add('pulse');
+                            
+                            // Reset button behavior
+                            this.removeEventListener('click', arguments.callee);
+                            playButton.addEventListener('click', arguments.callee.caller);
+                        });
+                    }
+                });
+            }
+        });
+        
+        // Map control functionality
+        document.addEventListener('DOMContentLoaded', function() {
+            // Re-query the buttons after DOM is fully loaded
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const resetMapBtn = document.getElementById('reset-map');
+            const toggleLayersBtn = document.querySelector('button[aria-label="Toggle layers"]');
+            
+            if (zoomInBtn) {
+                zoomInBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Zoom in clicked');
+                    const mapFrame = document.getElementById('map-frame');
+                    if (mapFrame && mapFrame.contentWindow) {
+                        // Send a message to the iframe
+                        mapFrame.contentWindow.postMessage({ command: 'zoomIn' }, '*');
+                    } else {
+                        console.error('Map frame not found or not ready');
+                    }
+                });
+            } else {
+                console.error('Zoom in button not found');
+            }
+            
+            if (zoomOutBtn) {
+                zoomOutBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Zoom out clicked');
+                    const mapFrame = document.getElementById('map-frame');
+                    if (mapFrame && mapFrame.contentWindow) {
+                        mapFrame.contentWindow.postMessage({ command: 'zoomOut' }, '*');
+                    } else {
+                        console.error('Map frame not found or not ready');
+                    }
+                });
+            } else {
+                console.error('Zoom out button not found');
+            }
+            
+            if (resetMapBtn) {
+                resetMapBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Reset map clicked');
+                    const mapFrame = document.getElementById('map-frame');
+                    if (mapFrame && mapFrame.contentWindow) {
+                        mapFrame.contentWindow.postMessage({ command: 'resetMap' }, '*');
+                    } else {
+                        console.error('Map frame not found or not ready');
+                    }
+                });
+            } else {
+                console.error('Reset map button not found');
+            }
+            
+            if (toggleLayersBtn) {
+                toggleLayersBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    console.log('Toggle layers clicked');
+                    const mapFrame = document.getElementById('map-frame');
+                    if (mapFrame && mapFrame.contentWindow) {
+                        mapFrame.contentWindow.postMessage({ command: 'toggleLayers' }, '*');
+                    } else {
+                        console.error('Map frame not found or not ready');
+                    }
+                });
+            } else {
+                console.error('Toggle layers button not found');
+            }
+        });
+        
+        // Handle animated map button click
+        if (animatedMapBtn) {
+            animatedMapBtn.addEventListener('click', function() {
+                // Get current risk type from selector
+                const riskType = riskTypeSelector ? riskTypeSelector.value : 'general';
+                
+                // Open animated map in a new window/tab
+                window.open(`/animated_map?risk_type=${riskType}`, '_blank');
+                console.log('Opening animated forecast with risk type:', riskType);
+            });
+        }
+    </script>
+    <!-- Custom map controls -->
+    <script src="/static/js/map-controls.js"></script>

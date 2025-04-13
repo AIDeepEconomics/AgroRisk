@@ -1,0 +1,389 @@
+/* Green Theme for Dynamic Risk Map Application */
+
+:root {
+    --dark-bg: #0d2818; /* Deep green background */
+    --card-bg: #1b4332; /* Dark green cards */
+    --accent-primary: #40916c; /* Vibrant green accent */
+    --accent-success: #52b788; /* Bright green for success */
+    --accent-danger: #e63946; /* Red for danger */
+    --accent-warning: #ffb703; /* Yellow for warning */
+    --accent-info: #48cae4; /* Blue for info */
+    --text-primary: #f1faee; /* Light text for contrast */
+    --text-secondary: #a8dadc; /* Secondary text color */
+    --border-color: #2d6a4f; /* Green border color */
+    --hover-color: #1b4332; /* Dark green for hover states */
+}
+
+body {
+    background-color: var(--dark-bg);
+    color: var(--text-primary);
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    margin: 0;
+    padding: 0;
+    min-height: 100vh;
+}
+
+.container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+}
+
+/* Card styling */
+.card {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-bottom: 1.5rem;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 1.5rem;
+    font-weight: 600;
+}
+
+.card-body {
+    padding: 1.5rem;
+}
+
+/* Custom header colors */
+.bg-primary {
+    background-color: var(--accent-primary) !important;
+}
+
+.bg-success {
+    background-color: var(--accent-success) !important;
+}
+
+.bg-danger {
+    background-color: var(--accent-danger) !important;
+}
+
+.bg-warning {
+    background-color: var(--accent-warning) !important;
+}
+
+.bg-info {
+    background-color: var(--accent-info) !important;
+}
+
+/* Form controls */
+.form-select, .form-control {
+    background-color: #1e3a5f;
+    border: 1px solid var(--border-color);
+    color: var(--text-primary);
+    border-radius: 6px;
+}
+
+.form-select:focus, .form-control:focus {
+    background-color: #254b78;
+    color: var(--text-primary);
+    border-color: var(--accent-primary);
+    box-shadow: 0 0 0 0.25rem rgba(51, 153, 255, 0.25);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 6px;
+    font-weight: 500;
+    padding: 0.5rem 1.25rem;
+    transition: all 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--accent-primary);
+    border-color: var(--accent-primary);
+}
+
+.btn-success {
+    background-color: var(--accent-success);
+    border-color: var(--accent-success);
+}
+
+.btn-danger {
+    background-color: var(--accent-danger);
+    border-color: var(--accent-danger);
+}
+
+.btn-info {
+    background-color: var(--accent-info);
+    border-color: var(--accent-info);
+    color: white;
+}
+
+.btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Map container */
+#map-container {
+    border: 2px solid var(--border-color);
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.3);
+    height: 600px; /* Increased map height */
+}
+
+/* Risk indicators */
+.risk-high { 
+    color: var(--accent-danger); 
+    font-weight: bold; 
+}
+
+.risk-medium { 
+    color: var(--accent-warning); 
+    font-weight: bold;
+}
+
+.risk-low { 
+    color: var(--accent-success); 
+    font-weight: bold;
+}
+
+/* Time navigation */
+.time-slider-container {
+    padding: 1.25rem;
+    background-color: rgba(30, 73, 118, 0.5);
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    border: 1px solid var(--border-color);
+}
+
+.time-slider {
+    width: 100%;
+    height: 6px;
+}
+
+.time-slider::-webkit-slider-thumb {
+    background: var(--accent-primary);
+}
+
+.slider-labels {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+}
+
+.play-button {
+    margin-right: 1rem;
+}
+
+/* List groups */
+.list-group-item {
+    background-color: var(--card-bg);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+.list-group-item-danger {
+    background-color: rgba(244, 67, 54, 0.2);
+    color: #ff8a80;
+}
+
+.list-group-item-warning {
+    background-color: rgba(255, 152, 0, 0.2);
+    color: #ffcc80;
+}
+
+/* Tables */
+.table {
+    color: var(--text-primary);
+}
+
+.table th {
+    color: var(--text-secondary);
+    border-bottom: 1px solid var(--border-color);
+    padding: 1rem 0.75rem;
+}
+
+.table td {
+    border-color: var(--border-color);
+    padding: 1rem 0.75rem;
+}
+
+.table-responsive {
+    border-radius: 6px;
+    overflow: hidden;
+}
+
+/* Accordion */
+.accordion-item {
+    background-color: var(--card-bg);
+    border: 1px solid var(--border-color);
+}
+
+.accordion-button {
+    background-color: var(--card-bg);
+    color: var(--text-primary);
+}
+
+.accordion-button:not(.collapsed) {
+    background-color: var(--hover-color);
+    color: var(--text-primary);
+}
+
+.accordion-button:focus {
+    box-shadow: 0 0 0 0.25rem rgba(51, 153, 255, 0.25);
+}
+
+/* Navigation Bar */
+.navbar {
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.navbar-brand {
+    font-weight: 600;
+    font-size: 1.25rem;
+}
+
+/* Map Controls */
+.map-controls {
+    z-index: 1000;
+}
+
+.map-controls .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.map-legend {
+    z-index: 1000;
+    background-color: rgba(0, 0, 0, 0.7) !important;
+    border-radius: 0 8px 0 0;
+}
+
+.legend-color {
+    width: 16px;
+    height: 16px;
+    border-radius: 4px;
+}
+
+.legend-color.risk-high {
+    background-color: var(--accent-danger);
+}
+
+.legend-color.risk-medium {
+    background-color: var(--accent-warning);
+}
+
+.legend-color.risk-low {
+    background-color: var(--accent-success);
+}
+
+/* Dashboard Summary */
+.dashboard-summary {
+    background-color: var(--card-bg);
+    border-radius: 8px;
+    padding: 1.5rem;
+}
+
+.dashboard-summary h4 {
+    color: var(--text-primary);
+    margin-bottom: 1.5rem;
+}
+
+.summary-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 0.75rem 0;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.summary-item:last-child {
+    border-bottom: none;
+}
+
+/* Enhanced Risk Alerts */
+#refresh-alerts {
+    padding: 0.25rem 0.5rem;
+}
+
+#no-alerts {
+    margin-bottom: 0;
+}
+
+.alert-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.75rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+}
+
+.alert-item.high {
+    background-color: rgba(244, 67, 54, 0.1);
+}
+
+.alert-item.medium {
+    background-color: rgba(255, 152, 0, 0.1);
+}
+
+.alert-item .alert-icon {
+    font-size: 1.25rem;
+    margin-right: 0.75rem;
+}
+
+.alert-item .alert-content {
+    flex-grow: 1;
+}
+
+.alert-item .alert-date {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+/* Crop Metrics Display */
+.crop-metrics {
+    border-top: 1px solid var(--border-color);
+    padding-top: 1rem;
+}
+
+.crop-metric {
+    background-color: rgba(255, 255, 255, 0.05);
+    padding: 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border-color);
+}
+
+.crop-metric .fw-bold {
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+
+.crop-metric div {
+    padding: 0.25rem 0;
+}
+
+/* Responsiveness */
+@media (max-width: 768px) {
+    .container {
+        padding-top: 1rem;
+    }
+    
+    #map-container {
+        height: 450px;
+    }
+    
+    .card {
+        margin-bottom: 1rem;
+    }
+    
+    table {
+        font-size: 14px;
+    }
+}

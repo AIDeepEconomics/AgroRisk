@@ -1,0 +1,5 @@
+id,name,coverage,threshold,min_premium
+drought_ins,Drought Microinsurance,800,Less than 40% field capacity for 10+ days,45
+flood_ins,Flood Microinsurance,700,Soil saturation for 5+ days,40
+frost_ins,Late Frost Microinsurance,500,Below 0°C post-emergence,35
+pest_ins,Specific Pest Microinsurance,600,Based on verified infestation level,55

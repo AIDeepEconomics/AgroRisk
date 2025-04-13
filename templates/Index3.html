@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Dynamic Risk Map visualization tool for Agricultural Microinsurance">
+    <title>AgroRisk - Dynamic Risk Map for Microinsurance</title>
+    <!-- External CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <style>
+        :root {
+            --primary-color: #2b6cb0;
+            --secondary-color: #4c6ef5;
+            --success-color: #38a169;
+            --warning-color: #dd6b20;
+            --danger-color: #e53e3e;
+            --light-color: #f8f9fa;
+            --dark-color: #1a202c;
+            --gray-color: #e2e8f0;
+            --border-radius: 0.5rem;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: #f7fafc;
+            color: #2d3748;
+        }
+        
+        .navbar-brand {
+            font-weight: 700;
+            letter-spacing: 0.5px;
+        }
+        
+        .navbar-dark {
+            background-color: var(--primary-color) !important;
+        }
+        
+        .card {
+            border-radius: var(--border-radius);
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: none;
+            margin-bottom: 1.5rem;
+            overflow: hidden;
+        }
+        
+        .card-header {
+            font-weight: 600;
+            padding: 0.75rem 1.25rem;
+        }
+        
+        /* Map styling */
+        .map-container {
+            height: 500px;
+            width: 100%;
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            position: relative;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            border: 1px solid var(--gray-color);
+        }
+        
+        .map-controls {
+            z-index: 10;
+            background-color: rgba(255, 255, 255, 0.9);
+            border-radius: 0.3rem;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            padding: 0.5rem;
+        }
+        
+        .map-legend {
+            z-index: 10;
+            background-color: rgba(26, 32, 44, 0.8);
+            border-radius: 0.3rem;
+            padding: 1rem;
+            max-width: 200px;
+        }
+        
+        .legend-color {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.5rem;
+        }
+        
+        /* Risk colors */
+        .risk-high {
+            background-color: var(--danger-color);
+            color: var(--danger-color);
+        }
+        
+        .risk-medium {
+            background-color: var(--warning-color);
+            color: var(--warning-color);
+        }
+        
+        .risk-low {
+            background-color: var(--success-color);
+            color: var(--success-color);
+        }
+        
+        /* Time slider */
+        .time-navigation {
+            background-color: white;
+            border-radius: var(--border-radius);
+            margin-bottom: 1.5rem;
+        }
+        
+        .time-slider-container {
+            padding: 1.25rem;
+            background-color: white;
+            border-radius: var(--border-radius);
+        }
+        
+        .time-slider {
+            width: 100%;
+            height: 0.5rem;
+        }
+        
+        .slider-labels {
+            display: flex;
+            justify-content: space-between;
+            margin-top: 0.5rem;
+            font-size: 0.875rem;
+            color: #718096;
+        }
+        
+        .date-display {
+            font-weight: 600;
+            font-size: 1.125rem;
+            color: var(--dark-color);
+        }
+        
+        /* Dashboard summary styles */
+        .summary-card {
+            height: 100%;
+        }
+        
+        .metric-value {
+            font-weight: 700;
+            font-size: 1.125rem;
+        }
+        
+        .crop-metric {
+            padding: 0.75rem;
+            background-color: rgba(237, 242, 247, 0.7);
+            border-radius: 0.3rem;
+            margin-bottom: 0.75rem;
+        }
+        
+        /* Alerts styling */
+        .alert-item {
+            padding: 0.75rem;
+            border-radius: 0.3rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(237, 242, 247, 0.7);
+        }
+        
+        .high {
+            border-left: 4px solid var(--danger-color);
+        }
+        
+        .medium {
+            border-left: 4px solid var(--warning-color);
+        }
+        
+        .low {
+            border-left: 4px solid var(--success-color);
+        }
+        
+        .alert-icon {
+            margin-right: 0.5rem;
+        }
+        
+        .alert-date {
+            font-size: 0.75rem;
+            color: #718096;
+        }
+        
+        /* Responsive improvements */
+        @media (max-width: 768px) {
+            .map-container {
+                height: 350px;
+            }
+            
+            .map-legend {
+                max-width: 150px;
+                padding: 0.5rem;
+            }
+        }
+        
+        /* Animation button */
+        .animated-map-btn {
+            transition: all 0.3s ease;
+        }
+        
+        .animated-map-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        /* Badge styling */
+        .confidence-badge {
+            font-size: 0.75rem;
+            padding: 0.25rem 0.5rem;
+            border-radius: 999px;
+        }
+        
+        /* Yield predictions table */
+        .yield-table th {
+            background-color: rgba(237, 242, 247, 0.7);
+            font-weight: 600;
+        }
+        
+        /* Insurance products accordion */
+        .accordion-button:not(.collapsed) {
+            background-color: rgba(237, 242, 247, 0.7);
+            font-weight: 600;
+        }
+        
+        .accordion-button:focus {
+            box-shadow: 0 0 0 0.25rem rgba(43, 108, 176, 0.25);
+        }
+    </style>
+</head>
+<body>
+    <!-- Main Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark mb-4 sticky-top">
+        <div class="container">
+            <a class="navbar-brand d-flex align-items-center" href="#">
+                <img src="00889ed8-d416-4008-9b99-b80ce862f60c.png" alt="AgroRisk Logo" height="32" class="me-2">
+                AgroRisk Map
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-map me-1"></i> Risk Map</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#alerts"><i class="fas fa-exclamation-triangle me-1"></i> Risk Alerts</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#predictions"><i class="fas fa-chart-line me-1"></i> Yield Predictions</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#insurance"><i class="fas fa-shield-alt me-1"></i> Insurance Products</a>
+                    </li>
+                </ul>
+                <div class="d-flex">
+                    <button class="btn btn-outline-light btn-sm">
+                        <i class="fas fa-user me-1"></i> Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="container py-4">
+        <header class="text-center mb-5">
+            <h1 class="display-5 fw-bold text-primary mb-2">Dynamic Risk Map for Agricultural Microinsurance</h1>
+            <p class="lead text-muted">Real-time monitoring and risk assessment for small-scale farmers</p>
+        </header>
+        
+        <!-- Time Navigation Section -->
+        <section class="time-navigation mb-4">
+            <div class="card">
+                <div class="card-header bg-primary text-white d-flex justify-content-between align-items-center">
+                    <span><i class="fas fa-calendar-alt me-2"></i> Time Navigation</span>
+                    <span class="date-display" id="current-date">Jan 15, 2025</span>
+                </div>
+                <div class="card-body">
+                    <div class="time-slider-container">
+                        <div class="d-flex align-items-center mb-3">
+                            <button id="play-button" class="btn btn-primary me-3">
+                                <i class="fas fa-play me-1"></i> Play
+                            </button>
+                            <div class="w-100">
+                                <input type="range" class="form-range time-slider" id="time-slider" min="0" max="29" value="0">
+                                <div class="slider-labels">
+                                    <span>Jan 15, 2025</span>
+                                    <span>Jan 30, 2025</span>
+                                    <span>Feb 14, 2025</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-3">
+                            <div class="col-md-6 mb-3 mb-md-0">
+                                <label for="date-selector" class="form-label">Select specific date:</label>
+                                <select id="date-selector" class="form-select">
+                                    {% for date in dates %}
+                                        <option value="{{ date }}">{{ date }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <div class="col-md-6">
+                                <label for="risk-type" class="form-label">Risk type to display:</label>
+                                <select id="risk-type" class="form-select">
+                                    <option value="general">General Risk</option>
+                                    <option value="drought">Drought Risk</option>
+                                    <option value="flood">Flood Risk</option>
+                                    <option value="pest">Pest Risk</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="text-center mt-3">
+                            <button id="animated-map-btn" class="btn btn-info animated-map-btn">
+                                <i class="fas fa-film me-2"></i> View Animated Risk Map
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Map Container Section -->
+        <section class="mb-5">
+            <div class="map-container">
+                <iframe id="map-frame" width="100%" height="100%" frameborder="0" title="Interactive Risk Map"></iframe>
+                
+                <div class="map-controls position-absolute top-0 end-0 m-3">
+                    <div class="d-flex flex-column">
+                        <button class="btn btn-light mb-2" id="zoom-in" aria-label="Zoom in">
+                            <i class="fas fa-search-plus"></i>
+                        </button>
+                        <button class="btn btn-light mb-2" id="zoom-out" aria-label="Zoom out">
+                            <i class="fas fa-search-minus"></i>
+                        </button>
+                        <button class="btn btn-light" id="reset-map" aria-label="Reset map view">
+                            <i class="fas fa-sync-alt"></i>
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="map-legend position-absolute bottom-0 start-0 m-3">
+                    <h6 class="text-white mb-3 fw-bold">Risk Legend</h6>
+                    <div class="d-flex flex-column">
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="legend-color risk-high"></div>
+                            <span class="text-white">High Risk</span>
+                        </div>
+                        <div class="d-flex align-items-center mb-2">
+                            <div class="legend-color risk-medium"></div>
+                            <span class="text-white">Medium Risk</span>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="legend-color risk-low"></div>
+                            <span class="text-white">Low Risk</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Dashboard Summary and Alerts Section -->
+        <section class="mb-5">
+            <div class="row">
+                <!-- Dashboard Summary -->
+                <div class="col-lg-4 mb-4 mb-lg-0">
+                    <div class="card summary-card h-100">
+                        <div class="card-header bg-primary text-white">
+                            <i class="fas fa-tachometer-alt me-2"></i> Dashboard Summary
+                        </div>
+                        <div class="card-body">
+                            <div class="summary-metrics mb-4">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold">Total Parcels:</span>
+                                    <span id="total-parcels" class="metric-value">Loading...</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <span class="fw-bold">High Risk Areas:</span>
+                                    <span id="high-risk-areas" class="metric-value">Loading...</span>
+                                </div>
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span class="fw-bold">Insured Parcels:</span>
+                                    <span id="insured-parcels" class="metric-value">Loading...</span>
+                                </div>
+                            </div>
+                            
+                            <h6 class="fw-bold mb-3"><i class="fas fa-seedling me-2"></i> Crop Metrics</h6>
+                            <div id="crop-metrics-container">
+                                <!-- Crop metrics will be populated here -->
+                                <div class="placeholder-glow">
+                                    <div class="placeholder col-12 mb-2"></div>
+                                    <div class="placeholder col-10 mb-2"></div>
+                                    <div class="placeholder col-12 mb-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Risk Alerts -->
+                <div class="col-lg-8" id="alerts">
+                    <div class="card h-100">
+                        <div class="card-header bg-danger text-white d-flex justify-content-between align-items-center">
+                            <span><i class="fas fa-exclamation-triangle me-2"></i> Risk Alerts</span>
+                            <button class="btn btn-sm btn-light" id="refresh-alerts" aria-label="Refresh alerts">
+                                <i class="fas fa-sync-alt"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <div class="alert alert-info" id="no-alerts" style="display: none;">
+                                <i class="fas fa-info-circle me-2"></i> No active alerts at this time.
+                            </div>
+                            <div id="alerts-list">
+                                <!-- Alerts will be populated here -->
+                                <div class="placeholder-glow">
+                                    <div class="placeholder col-12 mb-2"></div>
+                                    <div class="placeholder col-10 mb-2"></div>
+                                    <div class="placeholder col-12 mb-2"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- Yield Predictions and Insurance Products Section -->
+        <section class="mb-5">
+            <div class="row">
+                <!-- Yield Predictions -->
+                <div class="col-lg-6 mb-4 mb-lg-0" id="predictions">
+                    <div class="card h-100">
+                        <div class="card-header bg-info text-white">
+                            <i class="fas fa-chart-bar me-2"></i> Yield Predictions
+                        </div>
+                        <div class="card-body">
+                            <div id="yield-predictions" class="placeholder-glow">
+                                <div class="placeholder col-12 mb-2"></div>
+                                <div class="placeholder col-10 mb-2"></div>
+                                <div class="placeholder col-12 mb-2"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Insurance Products -->
+                <div class="col-lg-6" id="insurance">
+                    <div class="card h-100">
+                        <div class="card-header bg-success text-white">
+                            <i class="fas fa-shield-alt me-2"></i> Available Microinsurance Products
+                        </div>
+                        <div class="card-body">
+                            <div class="accordion" id="insuranceAccordion">
+                                {% for product in insurance_products %}
+                                <div class="accordion-item mb-2">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse{{ loop.index }}">
+                                            <i class="fas fa-file-contract me-2"></i> {{ product.name }}
+                                        </button>
+                                    </h2>
+                                    <div id="collapse{{ loop.index }}" class="accordion-collapse collapse" data-bs-parent="#insuranceAccordion">
+                                        <div class="accordion-body">
+                                            <div class="mb-2">
+                                                <span class="fw-bold me-2"><i class="fas fa-shield-alt me-1"></i> Coverage:</span>
+                                                <span>Up to ${{ product.coverage }}/ha</span>
+                                            </div>
+                                            <div class="mb-2">
+                                                <span class="fw-bold me-2"><i class="fas fa-chart-line me-1"></i> Threshold:</span>
+                                                <span>{{ product.threshold }}</span>
+                                            </div>
+                                            <div>
+                                                <span class="fw-bold me-2"><i class="fas fa-dollar-sign me-1"></i> Minimum Premium:</span>
+                                                <span>${{ product.min_premium }}/ha (varies by risk level)</span>
+                                            </div>
+                                            <div class="mt-3">
+                                                <button class="btn btn-sm btn-outline-success w-100">
+                                                    <i class="fas fa-calculator me-1"></i> Calculate Premium
+                                                </button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </main>
+    
+    <footer class="bg-dark text-white py-4 mt-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <h5><i class="fas fa-map-marked-alt me-2"></i> AgroRisk Map</h5>
+                    <p class="text-muted">Real-time monitoring and risk assessment for small-scale farmers</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0 text-muted">&copy; 2025 AgroRisk Technologies</p>
+                    <p class="mb-0 text-muted small">Data updated daily | Last update: March 15, 2025</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+    
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Global variables
+        let allDates = [];
+        let isPlaying = false;
+        let animationInterval;
+        
+        // Load map with default parameters
+        function loadMap(date, riskType) {
+            const mapFrame = document.getElementById('map-frame');
+            mapFrame.src = `/map?date=${date}&risk_type=${riskType}`;
+        }
+        
+        // Load yield predictions for the selected date
+        async function loadYieldPredictions(date) {
+            try {
+                const response = await fetch(`/api/yield_predictions?date=${date}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const predictions = await response.json();
+                
+                if (predictions.length === 0) {
+                    document.getElementById('yield-predictions').innerHTML = 
+                        '<div class="alert alert-info"><i class="fas fa-info-circle me-2"></i> No predictions available for this date.</div>';
+                    return;
+                }
+                
+                let html = '<div class="table-responsive">';
+                html += '<table class="table table-sm table-hover yield-table">';
+                html += '<thead><tr><th>Parcel ID</th><th>Crop</th><th>Predicted Yield</th><th>Confidence</th><th>Risks</th></tr></thead>';
+                html += '<tbody>';
+                
+                predictions.forEach(pred => {
+                    const confidenceClass = pred.confidence > 70 ? 'bg-success' : 
+                                          pred.confidence > 50 ? 'bg-warning' : 'bg-danger';
+                    
+                    // Calculate average risk
+                    const avgRisk = (pred.drought_probability + pred.flood_probability + pred.hail_probability) / 3;
+                    const riskIcon = avgRisk > 50 ? '<i class="fas fa-exclamation-triangle text-danger"></i>' :
+                                     avgRisk > 30 ? '<i class="fas fa-exclamation-circle text-warning"></i>' :
+                                     '<i class="fas fa-check-circle text-success"></i>';
+                    
+                    html += `<tr>
+                              <td><span class="badge bg-light text-dark">${pred.parcel_id}</span></td>
+                              <td><strong>${pred.crop || 'Unknown'}</strong></td>
+                              <td>${pred.predicted_yield} ton/ha</td>
+                              <td><span class="badge ${confidenceClass} confidence-badge">${pred.confidence}%</span></td>
+                              <td>
+                                ${riskIcon}
+                                <div class="small">
+                                  <span class="text-danger">Drought: ${pred.drought_probability}%</span> |
+                                  <span class="text-primary">Flood: ${pred.flood_probability}%</span> |
+                                  <span class="text-secondary">Hail: ${pred.hail_probability}%</span>
+                                </div>
+                              </td>
+                             </tr>`;
+                });
+                
+                html += '</tbody></table></div>';
+                document.getElementById('yield-predictions').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading yield predictions:', error);
+                document.getElementById('yield-predictions').innerHTML = 
+                    `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i> Error loading predictions: ${error.message}</div>`;
+            }
+        }
+        
+        // Load risk alerts for the selected date
+        async function loadAlerts(date) {
+            try {
+                const response = await fetch(`/api/risk_data?date=${date}`);
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+                
+                // Filter alerts (non-null)
+                const alerts = data.filter(item => item.alert);
+                
+                if (alerts.length === 0) {
+                    document.getElementById('no-alerts').style.display = 'block';
+                    document.getElementById('alerts-list').innerHTML = '';
+                    return;
+                }
+                
+                document.getElementById('no-alerts').style.display = 'none';
+                
+                let html = '';
+                alerts.forEach(alert => {
+                    const severity = alert.alert.includes('HIGH ALERT') ? 'high' : 'medium';
+                    const icon = severity === 'high' ? 
+                                '<i class="fas fa-exclamation-triangle text-danger me-2"></i>' :
+                                '<i class="fas fa-exclamation-circle text-warning me-2"></i>';
+                    
+                    html += `
+                    <div class="alert-item ${severity}">
+                        <div class="alert-content">
+                            ${icon} ${alert.alert}
+                        </div>
+                        <div class="alert-date">
+                            <i class="far fa-calendar-alt me-1"></i> ${new Date(date).toLocaleDateString()}
+                        </div>
+                    </div>`;
+                });
+                
+                document.getElementById('alerts-list').innerHTML = html;
+                
+            } catch (error) {
+                console.error('Error loading alerts:', error);
+                document.getElementById('alerts-list').innerHTML = 
+                    `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i> Error loading alerts: ${error.message}</div>`;
+            }
+        }
+        
+        // Fetch and update dashboard summary data
+        async function updateDashboardSummary() {
+            try {
+                const response = await fetch('/api/dashboard_summary');
+                
+                if (!response.ok) {
+                    throw new Error(`Error: ${response.status} ${response.statusText}`);
+                }
+                
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Update summary metrics with animation
+                animateCounterUpdate('total-parcels', data.total_parcels || 0);
+                animateCounterUpdate('high-risk-areas', data.high_risk_areas || 0);
+                animateCounterUpdate('insured-parcels', data.insured_parcels || 0);
+
+                // Update crop metrics
+                const cropMetricsContainer = document.getElementById('crop-metrics-container');
+                cropMetricsContainer.innerHTML = '';
+
+                if (!data.crop_metrics || Object.keys(data.crop_metrics).length === 0) {
+                    cropMetricsContainer.innerHTML = '<div class="text-muted"><i class="fas fa-info-circle me-2"></i>No crop data available</div>';
+                    return;
+                }
+
+                for (const [crop, metrics] of Object.entries(data.crop_metrics)) {
+                    // Create risk indicators
+                    const droughtRisk = getRiskIndicator(metrics.average_risks.drought);
+                    const floodRisk = getRiskIndicator(metrics.average_risks.flood);
+                    const pestRisk = getRiskIndicator(metrics.average_risks.pest);
+                    
+                    const cropMetric = document.createElement('div');
+                    cropMetric.className = 'crop-metric';
+                    cropMetric.innerHTML = `
+                        <div class="fw-bold mb-2">
+                            <i class="fas fa-seedling me-1"></i> ${crop}
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span>Average Yield:</span>
+                            <span class="fw-bold">${metrics.average_yield || 'N/A'} ton/ha</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span>Drought Risk:</span>
+                            <span>${droughtRisk}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center mb-1">
+                            <span>Flood Risk:</span>
+                            <span>${floodRisk}</span>
+                        </div>
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span>Pest Risk:</span>
+                            <span>${pestRisk}</span>
+                        </div>
+                    `;
+                    cropMetricsContainer.appendChild(cropMetric);
+                }
+            } catch (error) {
+                console.error('Error fetching dashboard summary:', error);
+                const cropMetricsContainer = document.getElementById('crop-metrics-container');
+                cropMetricsContainer.innerHTML = 
+                    `<div class="alert alert-danger"><i class="fas fa-exclamation-circle me-2"></i> Error loading data: ${error.message}</div>`;
+            }
+        }
+        
+        // Helper function to create risk indicator
+        function getRiskIndicator(riskValue) {
+            let riskClass, icon;
+            
+            if (riskValue >= 70) {
+                riskClass = 'text-danger';
+                icon = 'fa-exclamation-triangle';
+            } else if (riskValue >= 40) {
+                riskClass = 'text-warning';
+                icon = 'fa-exclamation-circle';
+            } else {
+                riskClass = 'text-success';
+                icon = 'fa-check-circle';
+            }
+            
+            return `<span class="${riskClass}"><i class="fas ${icon} me-1"></i> ${riskValue}%</span>`;
+        }
+        
+        // Animate counter update
+        function animateCounterUpdate(elementId, targetValue) {
+            const element = document.getElementById(elementId);
+            const currentValue = parseInt(element.textContent, 10) || 0;
+            const duration = 1000; // ms
+            const steps = 20;
+            const stepValue = (targetValue - currentValue) / steps;
+            let currentStep = 0;
+            
+            const interval = setInterval(() => {
+                currentStep++;
+                const value = Math.floor(currentValue + (stepValue * currentStep));
+                element.textContent = value.toLocaleString();
+                
+                if (currentStep >= steps) {
+                    element.textContent = targetValue.toLocaleString();
+                    clearInterval(interval);
+                }
+            }, duration / steps);
+        }
+
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            const dateSelector = document.getElementById('date-selector');
+            const riskTypeSelector = document.getElementById('risk-type');
+            const timeSlider = document.getElementById('time-slider');
+            const playButton = document.getElementById('play-button');
+            const currentDateDisplay = document.getElementById('current-date');
+            const animatedMapBtn = document.getElementById('animated-map-btn');
+            const zoomInBtn = document.getElementById('zoom-in');
+            const zoomOutBtn = document.getElementById('zoom-out');
+            const resetMapBtn = document.getElementById('reset-map');
+            
+            // Collect all available dates from the selector
+            Array.from(dateSelector.options).forEach(option => {
+                allDates.push(option.value);
+            });
+            
+            // Set max value for slider based on number of dates
+            if (allDates.length > 0) {
+                timeSlider.max = allDates.length - 1;
+            }
+            
+            // Load initial map
+            loadMap(dateSelector.value, riskTypeSelector.value);
+            loadYieldPredictions(dateSelector.value);
+            loadAlerts(dateSelector.value);
+            updateCurrentDateDisplay(dateSelector.value);
+            updateDashboardSummary();
+            
+            // Update when date changes from dropdown
+            dateSelector.addEventListener('change', function() {
+                // Update slider position to match selected date
+                const dateIndex = allDates.indexOf(this.value);
+                if (dateIndex !== -1) {
+                    timeSlider.value = dateIndex;
+                }
+                
+                loadMap(this.value, riskTypeSelector.value);
+                loadYieldPredictions(this.value);
+                loadAlerts(this.value);
+                updateCurrentDateDisplay(this.value);
+            });
+            
+            // Update when slider changes
+            timeSlider.addEventListener('input', function() {
+                const selectedDate = allDates[this.value];
+                if (selectedDate) {
+                    // Update dropdown to match slider
+                    dateSelector.value = selectedDate;
+                    
+                    loadMap(selectedDate, riskTypeSelector.value);
+                    loadYieldPredictions(selectedDate);
+                    loadAlerts(selectedDate);
+                    updateCurrentDateDisplay(selectedDate);
+                }
+            });
+            
+            // Play/Pause animation
+            playButton.addEventListener('click', function() {
+                if (isPlaying) {
+                    // Stop animation
+                    clearInterval(animationInterval);
+                    this.innerHTML = '<i class="fas fa-play me-1"></i> Play';
+                    isPlaying = false;
+                } else {
+                    // Start animation
+                    this.innerHTML = '<i class="fas fa-pause me-1"></i> Pause';
+                    isPlaying = true;
+                    
+                    animationInterval = setInterval(() => {
+                        let currentValue = parseInt(timeSlider.value);
+                        const maxValue = parseInt(timeSlider.max);
+                        
+                        // Increment and loop if needed
+                        currentValue = (currentValue >= maxValue) ? 0 : currentValue + 1;
+                        
+                        // Update slider value
+                        timeSlider.value = currentValue;
+                        
+                        // Trigger the same actions as manual sliding
+                        const selectedDate = allDates[currentValue];
+                        if (selectedDate) {
+                            dateSelector.value = selectedDate;
+                            loadMap(selectedDate, riskTypeSelector.value);
+                            loadYieldPredictions(selectedDate);
+                            loadAlerts(selectedDate);
+                            updateCurrentDateDisplay(selectedDate);
+                        }
+                    }, 1500); // Advance every 1.5 seconds
+                }
+            });
+            
+            // Update when risk type changes
+            riskTypeSelector.addEventListener('change', function() {
+                loadMap(dateSelector.value, this.value);
+            });
+            
+            // Handle animated map button click
+            animatedMapBtn.addEventListener('click', function() {
+                const riskType = riskTypeSelector.value;
+                // Open animated map in a new window
+                window.open(`/animated_map?risk_type=${riskType}`, '_blank');
+            });
+            
+            // Map controls
+            zoomInBtn.addEventListener('click', function() {
+                const mapFrame = document.getElementById('map-frame');
+                mapFrame.contentWindow.postMessage({ action: 'zoomIn' }, '*');
+            });
+            
+            zoomOutBtn.addEventListener('click', function() {
+                const mapFrame = document.getElementById('map-frame');
+                mapFrame.contentWindow.postMessage({ action: 'zoomOut' }, '*');
+            });
+            
+            resetMapBtn.addEventListener('click', function() {
+                const mapFrame = document.getElementById('map-frame');
+                mapFrame.contentWindow.postMessage({ action: 'resetMap' }, '*');
+            });
+            
+            // Helper function to update the current date display
+            function updateCurrentDateDisplay(dateString) {
+                // Convert YYYY-MM-DD to more readable format
+                const date = new Date(dateString);
+                const options = { month: 'short', day: 'numeric', year: 'numeric' };
+                currentDateDisplay.textContent = date.toLocaleDateString('en-US', options);
+            }
+            
+            document.getElementById('refresh-alerts').addEventListener('click', function() {
+                const currentDate = document.getElementById('date-selector').value;
+                loadAlerts(currentDate);
+            });
+            
+            // Add smooth scrolling for navigation links
+            document.querySelectorAll('.navbar-nav a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    
+                    if (targetElement) {
+                        window.scrollTo({
+                            top: targetElement.offsetTop - 80,
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+</html>

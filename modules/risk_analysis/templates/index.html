@@ -1,0 +1,1631 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AgroSmartRisk - Time Series Analysis</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Plotly.js -->
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <style>
+        :root {
+            /* Primary palette */
+            --primary-color: #0f766e;
+            --primary-light: #14b8a6;
+            --primary-dark: #0f524a;
+            --secondary-color: #064e3b;
+            --accent-color: #f59e0b;
+            
+            /* UI palette */
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --info-color: #3b82f6;
+            
+            /* Neutral palette */
+            --light-color: #f8fafc;
+            --light-offset: #f1f5f9;
+            --gray-color: #cbd5e1;
+            --dark-gray: #475569;
+            --dark-color: #1e293b;
+            --black: #0f172a;
+        }
+        
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+            background-color: var(--light-offset);
+            color: var(--dark-color);
+            line-height: 1.6;
+        }
+        
+        .navbar {
+            background-color: var(--primary-color);
+        }
+        
+        .navbar-brand {
+            color: white;
+            font-weight: 700;
+        }
+        
+        .nav-link {
+            color: rgba(255, 255, 255, 0.8);
+        }
+        
+        .nav-link:hover {
+            color: white;
+        }
+        
+        .card {
+            border: none;
+            border-radius: 0.5rem;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            margin-bottom: 1.5rem;
+        }
+        
+        .card-header {
+            background-color: white;
+            border-bottom: 1px solid var(--light-offset);
+            font-weight: 600;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-dark);
+            border-color: var(--primary-dark);
+        }
+        
+        .btn-outline-primary {
+            color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .btn-outline-primary:hover {
+            background-color: var(--primary-color);
+            border-color: var(--primary-color);
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary-light);
+            box-shadow: 0 0 0 0.25rem rgba(20, 184, 166, 0.25);
+        }
+        
+        .plot-container {
+            height: 500px;
+            width: 100%;
+        }
+        
+        .risk-badge {
+            padding: 0.35em 0.65em;
+            font-size: 0.75em;
+            font-weight: 700;
+            border-radius: 0.25rem;
+        }
+        
+        .risk-low {
+            background-color: var(--success-color);
+            color: white;
+        }
+        
+        .risk-medium {
+            background-color: var(--warning-color);
+            color: white;
+        }
+        
+        .risk-high {
+            background-color: var(--danger-color);
+            color: white;
+        }
+        
+        .loading {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 300px;
+        }
+        
+        .spinner-border {
+            color: var(--primary-color);
+            width: 3rem;
+            height: 3rem;
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container">
+            <a class="navbar-brand" href="#">
+                <i class="fas fa-leaf me-2"></i>
+                AgroSmartRisk
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-home me-1"></i> Dashboard</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="#"><i class="fas fa-chart-line me-1"></i> Risk Analysis</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-seedling me-1"></i> Crop Performance</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#"><i class="fas fa-shield-alt me-1"></i> Insurance</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <div class="container mt-4">
+        <div class="row mb-4">
+            <div class="col">
+                <h1 class="h3">Time Series Risk Analysis</h1>
+                <p class="text-muted">Analyze how agricultural risks change over time and identify trends and patterns.</p>
+            </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <i class="fas fa-filter me-2"></i> Analysis Filters
+            </div>
+            <div class="card-body">
+                <form id="analysisForm">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <label for="parcelSelect" class="form-label">Parcel</label>
+                            <select class="form-select" id="parcelSelect" required>
+                                <option value="" selected disabled>Select a parcel</option>
+                                <!-- Parcels will be loaded dynamically -->
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="riskTypeSelect" class="form-label">Risk Type</label>
+                            <select class="form-select" id="riskTypeSelect">
+                                <option value="overall" selected>Overall Risk</option>
+                                <option value="drought">Drought Risk</option>
+                                <option value="flood">Flood Risk</option>
+                                <option value="frost">Frost Risk</option>
+                                <option value="pest">Pest Risk</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label for="startDate" class="form-label">Start Date</label>
+                            <input type="date" class="form-control" id="startDate">
+                        </div>
+                        <div class="col-md-2">
+                            <label for="endDate" class="form-label">End Date</label>
+                            <input type="date" class="form-control" id="endDate">
+                        </div>
+                        <div class="col-md-1 d-flex align-items-end">
+                            <button type="submit" class="btn btn-primary w-100">
+                                <i class="fas fa-search"></i>
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Analysis Tabs -->
+        <ul class="nav nav-tabs mb-4" id="analysisTabs" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="time-series-tab" data-bs-toggle="tab" data-bs-target="#time-series" type="button" role="tab">
+                    <i class="fas fa-chart-line me-1"></i> Time Series
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="comparison-tab" data-bs-toggle="tab" data-bs-target="#comparison" type="button" role="tab">
+                    <i class="fas fa-code-compare me-1"></i> Risk Comparison
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="forecast-tab" data-bs-toggle="tab" data-bs-target="#forecast" type="button" role="tab">
+                    <i class="fas fa-crystal-ball me-1"></i> Forecast
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="seasonal-tab" data-bs-toggle="tab" data-bs-target="#seasonal" type="button" role="tab">
+                    <i class="fas fa-calendar-alt me-1"></i> Seasonal Analysis
+                </button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="weather-tab" data-bs-toggle="tab" data-bs-target="#weather" type="button" role="tab">
+                    <i class="fas fa-cloud-sun me-1"></i> Weather Correlation
+                </button>
+            </li>
+        </ul>
+
+        <!-- Tab Content -->
+        <div class="tab-content" id="analysisTabContent">
+            <!-- Time Series Tab -->
+            <div class="tab-pane fade show active" id="time-series" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-chart-line me-2"></i> Risk Time Series</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" id="downloadTimeSeriesBtn">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="timeSeriesPlot" class="plot-container">
+                            <div class="loading">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Risk Comparison Tab -->
+            <div class="tab-pane fade" id="comparison" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-code-compare me-2"></i> Risk Factors Comparison</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" id="downloadComparisonBtn">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="comparisonPlot" class="plot-container">
+                            <div class="loading">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-12">
+                                <h5>Risk Factor Correlations</h5>
+                                <div class="table-responsive">
+                                    <table class="table table-bordered table-hover" id="correlationTable">
+                                        <thead class="table-light">
+                                            <tr>
+                                                <th>Correlation</th>
+                                                <th>Drought</th>
+                                                <th>Flood</th>
+                                                <th>Frost</th>
+                                                <th>Pest</th>
+                                                <th>Overall</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>Drought</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Flood</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Frost</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Pest</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                            </tr>
+                                            <tr>
+                                                <td>Overall</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                                <td>-</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Forecast Tab -->
+            <div class="tab-pane fade" id="forecast" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-crystal-ball me-2"></i> Risk Forecast</span>
+                        <div>
+                            <div class="input-group">
+                                <label class="input-group-text" for="forecastDays">Forecast Days</label>
+                                <select class="form-select" id="forecastDays">
+                                    <option value="7" selected>7 days</option>
+                                    <option value="14">14 days</option>
+                                    <option value="30">30 days</option>
+                                    <option value="90">90 days</option>
+                                </select>
+                                <button class="btn btn-sm btn-outline-primary" id="downloadForecastBtn">
+                                    <i class="fas fa-download me-1"></i> Download
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="forecastPlot" class="plot-container">
+                            <div class="loading">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Current Risk Level</h5>
+                                        <p class="card-text" id="currentRiskLevel">Select a parcel to see forecast</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Forecasted Risk Level</h5>
+                                        <p class="card-text" id="forecastedRiskLevel">Select a parcel to see forecast</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-4">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Risk Change</h5>
+                                        <p class="card-text" id="riskChange">Select a parcel to see forecast</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Seasonal Analysis Tab -->
+            <div class="tab-pane fade" id="seasonal" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-calendar-alt me-2"></i> Seasonal Risk Analysis</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" id="downloadSeasonalBtn">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="seasonalPlot" class="plot-container">
+                            <div class="loading">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Highest Risk Month</h5>
+                                        <p class="card-text" id="highestRiskMonth">Select a parcel to see seasonal analysis</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Highest Risk Season</h5>
+                                        <p class="card-text" id="highestRiskSeason">Select a parcel to see seasonal analysis</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Weather Correlation Tab -->
+            <div class="tab-pane fade" id="weather" role="tabpanel">
+                <div class="card">
+                    <div class="card-header d-flex justify-content-between align-items-center">
+                        <span><i class="fas fa-cloud-sun me-2"></i> Weather Correlation Analysis</span>
+                        <div>
+                            <button class="btn btn-sm btn-outline-primary" id="downloadWeatherBtn">
+                                <i class="fas fa-download me-1"></i> Download
+                            </button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <div id="weatherCorrelationPlot" class="plot-container">
+                            <div class="loading">
+                                <div class="spinner-border" role="status">
+                                    <span class="visually-hidden">Loading...</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Most Influential Weather Factor</h5>
+                                        <p class="card-text" id="mostInfluentialFactor">Select a parcel to see weather correlation</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-md-6">
+                                <div class="card h-100">
+                                    <div class="card-body">
+                                        <h5 class="card-title">Correlation Strength</h5>
+                                        <p class="card-text" id="correlationStrength">Select a parcel to see weather correlation</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="bg-white py-4 mt-5 border-top">
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <p class="mb-0">&copy; 2025 AgroSmartRisk. All rights reserved.</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <p class="mb-0">Time Series Analysis Module - Proof of Concept</p>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Bootstrap JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <!-- Main JavaScript -->
+    <script>
+        // API Base URL
+        const API_BASE_URL = '/api';
+
+        // DOM Elements
+        const parcelSelect = document.getElementById('parcelSelect');
+        const riskTypeSelect = document.getElementById('riskTypeSelect');
+        const analysisForm = document.getElementById('analysisForm');
+        const timeSeriesPlot = document.getElementById('timeSeriesPlot');
+        const comparisonPlot = document.getElementById('comparisonPlot');
+        const forecastPlot = document.getElementById('forecastPlot');
+        const seasonalPlot = document.getElementById('seasonalPlot');
+        const weatherCorrelationPlot = document.getElementById('weatherCorrelationPlot');
+
+        // Analysis results elements
+        const currentRiskLevel = document.getElementById('currentRiskLevel');
+        const forecastedRiskLevel = document.getElementById('forecastedRiskLevel');
+        const riskChange = document.getElementById('riskChange');
+        const highestRiskMonth = document.getElementById('highestRiskMonth');
+        const highestRiskSeason = document.getElementById('highestRiskSeason');
+        const mostInfluentialFactor = document.getElementById('mostInfluentialFactor');
+        const correlationStrength = document.getElementById('correlationStrength');
+        const correlationTable = document.getElementById('correlationTable');
+
+        // Download buttons
+        const downloadTimeSeriesBtn = document.getElementById('downloadTimeSeriesBtn');
+        const downloadComparisonBtn = document.getElementById('downloadComparisonBtn');
+        const downloadForecastBtn = document.getElementById('downloadForecastBtn');
+        const downloadSeasonalBtn = document.getElementById('downloadSeasonalBtn');
+        const downloadWeatherBtn = document.getElementById('downloadWeatherBtn');
+
+        // Tab elements
+        const analysisTabs = document.querySelectorAll('#analysisTabs button');
+
+        // Current state
+        let currentParcel = null;
+        let currentRiskType = 'overall';
+        let currentStartDate = null;
+        let currentEndDate = null;
+
+        // Initialize the application
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load parcels
+            loadParcels();
+            
+            // Set default dates (last 30 days)
+            const today = new Date();
+            const thirtyDaysAgo = new Date();
+            thirtyDaysAgo.setDate(today.getDate() - 30);
+            
+            const startDateInput = document.getElementById('startDate');
+            const endDateInput = document.getElementById('endDate');
+            startDateInput.value = formatDate(thirtyDaysAgo);
+            endDateInput.value = formatDate(today);
+            
+            // Add event listeners
+            analysisForm.addEventListener('submit', handleFormSubmit);
+            
+            // Tab change events
+            analysisTabs.forEach(tab => {
+                tab.addEventListener('shown.bs.tab', handleTabChange);
+            });
+            
+            // Download buttons
+            downloadTimeSeriesBtn.addEventListener('click', () => downloadPlot('timeSeriesPlot', 'time_series'));
+            downloadComparisonBtn.addEventListener('click', () => downloadPlot('comparisonPlot', 'risk_comparison'));
+            downloadForecastBtn.addEventListener('click', () => downloadPlot('forecastPlot', 'risk_forecast'));
+            downloadSeasonalBtn.addEventListener('click', () => downloadPlot('seasonalPlot', 'seasonal_analysis'));
+            downloadWeatherBtn.addEventListener('click', () => downloadPlot('weatherCorrelationPlot', 'weather_correlation'));
+        });
+
+        // Load parcels from API
+        async function loadParcels() {
+            try {
+                console.log('Fetching parcels from API...');
+                const response = await fetch(`${API_BASE_URL}/parcels`);
+                console.log('Parcels API response:', response);
+                const data = await response.json();
+                console.log('Parcels data:', data);
+                
+                if (data.success) {
+                    // Clear existing options
+                    parcelSelect.innerHTML = '<option value="" selected disabled>Select a parcel</option>';
+                    
+                    // Debug response structure
+                    console.log('API response structure:', Object.keys(data));
+                    
+                    // Handle different response formats
+                    const parcels = data.data || [];
+                    console.log('Parcels to display:', parcels);
+                    
+                    parcels.forEach(parcel => {
+                        const option = document.createElement('option');
+                        option.value = parcel.id;
+                        option.textContent = `${parcel.name} (${parcel.crop_type || 'Unknown crop'})`;
+                        parcelSelect.appendChild(option);
+                    });
+                } else {
+                    console.error('API returned failure:', data);
+                    showError('Failed to load parcels');
+                }
+            } catch (error) {
+                console.error('Error loading parcels:', error);
+                showError('Failed to load parcels');
+            }
+        }
+
+        // Handle form submission
+        function handleFormSubmit(event) {
+            event.preventDefault();
+            
+            const parcelId = parcelSelect.value;
+            const riskType = riskTypeSelect.value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+            
+            if (!parcelId) {
+                alert('Please select a parcel');
+                return;
+            }
+            
+            console.log('Form submitted with values:', {
+                parcelId,
+                riskType,
+                startDate,
+                endDate
+            });
+            
+            // Update current state
+            currentParcel = parcelId;
+            currentRiskType = riskType;
+            currentStartDate = startDate;
+            currentEndDate = endDate;
+            
+            // Load data for the active tab
+            const activeTab = document.querySelector('#analysisTabs button.active');
+            loadDataForTab(activeTab.id);
+        }
+
+        // Handle tab change
+        function handleTabChange(event) {
+            if (currentParcel) {
+                loadDataForTab(event.target.id);
+            }
+        }
+
+        // Load data for the selected tab
+        function loadDataForTab(tabId) {
+            switch (tabId) {
+                case 'time-series-tab':
+                    loadTimeSeries();
+                    break;
+                case 'comparison-tab':
+                    loadComparison();
+                    break;
+                case 'forecast-tab':
+                    loadForecast();
+                    break;
+                case 'seasonal-tab':
+                    loadSeasonalAnalysis();
+                    break;
+                case 'weather-tab':
+                    loadWeatherCorrelation();
+                    break;
+            }
+        }
+
+        // Load time series data
+        async function loadTimeSeries() {
+            if (!currentParcel) return;
+            
+            showLoading(timeSeriesPlot);
+            
+            console.log('Loading time series data for parcel', currentParcel);
+            
+            try {
+                const url = `${API_BASE_URL}/risk-data/${currentParcel}/time-series?risk_type=${currentRiskType}`;
+                console.log('Fetching from URL:', url);
+                
+                const response = await fetch(url);
+                console.log('Time series API response:', response);
+                
+                const data = await response.json();
+                console.log('Time series data:', data);
+                
+                if (data.success) {
+                    console.log('Rendering time series chart with data:', 
+                                data.time_series.dates.length, 'data points');
+                    
+                    // Check if the data structure is as expected
+                    if (data.time_series && 
+                        Array.isArray(data.time_series.dates) && 
+                        Array.isArray(data.time_series.values)) {
+                        
+                        renderPlot(
+                            timeSeriesPlot,
+                            data.time_series.dates,
+                            data.time_series.values,
+                            `${capitalize(currentRiskType)} Risk Time Series`,
+                            currentRiskType
+                        );
+                    } else {
+                        console.error('Unexpected data structure:', data);
+                        showError('Invalid data structure returned from API', timeSeriesPlot);
+                    }
+                } else {
+                    console.error('API returned failure:', data);
+                    showError(data.error || 'Failed to load time series data', timeSeriesPlot);
+                }
+            } catch (error) {
+                console.error('Error loading time series data:', error);
+                showError('Error loading time series data', timeSeriesPlot);
+            }
+        }
+
+        // Load risk comparison data
+        async function loadComparison() {
+            showLoading(comparisonPlot);
+            
+            try {
+                const url = `${API_BASE_URL}/risk-data/comparison?parcel_id=${currentParcel}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Render the plot
+                    renderComparisonPlot(comparisonPlot, data.comparison.dates, {
+                        drought: data.comparison.drought,
+                        flood: data.comparison.flood,
+                        frost: data.comparison.frost,
+                        pest: data.comparison.pest,
+                        overall: data.comparison.overall
+                    }, `Risk Factors Comparison`);
+                    
+                    // Update correlation table
+                    updateCorrelationTable(data.correlations);
+                } else {
+                    console.error('API returned failure:', data);
+                    showError(data.error || 'Failed to load comparison data', comparisonPlot);
+                }
+            } catch (error) {
+                console.error('Error loading comparison data:', error);
+                showError('Error loading comparison data', comparisonPlot);
+            }
+        }
+
+        // Load forecast data
+        async function loadForecast() {
+            showLoading(forecastPlot);
+            
+            try {
+                const days = document.getElementById('forecastDays').value;
+                const url = `${API_BASE_URL}/risk-data/forecast?parcel_id=${currentParcel}&risk_type=${currentRiskType}&days=${days}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Render the plot
+                    renderForecastPlot(forecastPlot, data.historical.dates, data.historical.values,
+                        data.forecast.dates, data.forecast.values,
+                        `${capitalize(currentRiskType)} Risk Forecast`,
+                        currentRiskType);
+                    
+                    // Update forecast information
+                    updateForecastInfo(data.historical.values, data.forecast.values);
+                } else {
+                    console.error('API returned failure:', data);
+                    showError(data.error || 'Failed to load forecast data', forecastPlot);
+                }
+            } catch (error) {
+                console.error('Error loading forecast data:', error);
+                showError('Error loading forecast data', forecastPlot);
+            }
+        }
+
+        // Load seasonal analysis data
+        async function loadSeasonalAnalysis() {
+            showLoading(seasonalPlot);
+            
+            try {
+                const url = `${API_BASE_URL}/risk-data/seasonal-analysis?parcel_id=${currentParcel}&risk_type=${currentRiskType}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Render the plot
+                    renderSeasonalPlot(seasonalPlot, data.monthly_analysis.months, data.monthly_analysis.values,
+                        data.seasonal_analysis.seasons, data.seasonal_analysis.values,
+                        `${capitalize(currentRiskType)} Seasonal Risk Analysis`,
+                        currentRiskType);
+                    
+                    // Update seasonal information
+                    updateSeasonalInfo(data.monthly_analysis, data.seasonal_analysis);
+                } else {
+                    console.error('API returned failure:', data);
+                    showError(data.error || 'Failed to load seasonal analysis data', seasonalPlot);
+                }
+            } catch (error) {
+                console.error('Error loading seasonal analysis data:', error);
+                showError('Error loading seasonal analysis data', seasonalPlot);
+            }
+        }
+
+        // Load weather correlation data
+        async function loadWeatherCorrelation() {
+            showLoading(weatherCorrelationPlot);
+            
+            try {
+                const url = `${API_BASE_URL}/risk-data/weather-correlation?parcel_id=${currentParcel}&risk_type=${currentRiskType}`;
+                const response = await fetch(url);
+                const data = await response.json();
+                
+                if (data.success) {
+                    // Render the plot
+                    renderWeatherCorrelationPlot(weatherCorrelationPlot, data.correlations,
+                        `Weather Correlation with ${capitalize(currentRiskType)} Risk`,
+                        currentRiskType);
+                    
+                    // Update weather correlation information
+                    updateWeatherCorrelationInfo(data.most_influential_factor);
+                } else {
+                    console.error('API returned failure:', data);
+                    showError(data.error || 'Failed to load weather correlation data', weatherCorrelationPlot);
+                }
+            } catch (error) {
+                console.error('Error loading weather correlation data:', error);
+                showError('Error loading weather correlation data', weatherCorrelationPlot);
+            }
+        }
+
+        // Render time series plot
+        function renderPlot(container, dates, values, title, riskType) {
+            console.log('Rendering plot with:', {
+                container: container.id,
+                dateCount: dates.length,
+                valueCount: values.length,
+                title,
+                riskType
+            });
+            
+            // Convert dates to JavaScript Date objects for proper display
+            const parsedDates = dates.map(d => new Date(d));
+            console.log('Sample dates:', parsedDates.slice(0, 3));
+            console.log('Sample values:', values.slice(0, 3));
+            
+            // Make sure we have data to plot
+            if (dates.length === 0 || values.length === 0) {
+                console.error('No data to plot');
+                showError('No data available for the selected criteria', container);
+                return;
+            }
+            
+            const trace = {
+                x: parsedDates,
+                y: values,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: `${capitalize(riskType)} Risk`,
+                line: {
+                    color: getColorForRiskType(riskType),
+                    width: 2
+                },
+                marker: {
+                    size: 4,
+                    color: getColorForRiskType(riskType)
+                }
+            };
+            
+            const layout = {
+                title: {
+                    text: title,
+                    font: {
+                        size: 18
+                    }
+                },
+                xaxis: {
+                    title: 'Date',
+                    gridcolor: '#eee',
+                    zeroline: false
+                },
+                yaxis: {
+                    title: 'Risk Index (%)',
+                    range: [0, 100],
+                    gridcolor: '#eee',
+                    zeroline: false
+                },
+                margin: {
+                    l: 60,
+                    r: 40,
+                    b: 60,
+                    t: 80
+                },
+                plot_bgcolor: '#fff',
+                paper_bgcolor: '#fff',
+                hovermode: 'closest',
+                showlegend: true,
+                legend: {
+                    x: 0,
+                    y: 1
+                }
+            };
+            
+            // Multiply values by 100 to display as percentages
+            const percentValues = values.map(value => value * 100);
+            trace.y = percentValues;
+            
+            Plotly.newPlot(container, [trace], layout, {responsive: true});
+        }
+
+        // Render risk comparison plot
+        function renderComparisonPlot(container, dates, riskData, title) {
+            // Create plot data
+            const plotData = [];
+            
+            // Add traces for each risk type
+            for (const [riskType, values] of Object.entries(riskData)) {
+                plotData.push({
+                    x: dates,
+                    y: values,
+                    type: 'scatter',
+                    mode: 'lines',
+                    name: `${capitalize(riskType)} Risk`,
+                    line: {
+                        color: getColorForRiskType(riskType),
+                        width: 2
+                    }
+                });
+            }
+            
+            // Create layout
+            const layout = {
+                title: title,
+                xaxis: {
+                    title: 'Date',
+                    rangeslider: {
+                        visible: true
+                    },
+                    rangeselector: {
+                        buttons: [
+                            {
+                                count: 7,
+                                label: '1w',
+                                step: 'day',
+                                stepmode: 'backward'
+                            },
+                            {
+                                count: 1,
+                                label: '1m',
+                                step: 'month',
+                                stepmode: 'backward'
+                            },
+                            {
+                                count: 3,
+                                label: '3m',
+                                step: 'month',
+                                stepmode: 'backward'
+                            },
+                            {
+                                count: 6,
+                                label: '6m',
+                                step: 'month',
+                                stepmode: 'backward'
+                            },
+                            {
+                                count: 1,
+                                label: '1y',
+                                step: 'year',
+                                stepmode: 'backward'
+                            },
+                            {
+                                step: 'all'
+                            }
+                        ]
+                    }
+                },
+                yaxis: {
+                    title: 'Risk Level',
+                    range: [0, 1],
+                    tickvals: [0, 0.3, 0.7, 1],
+                    ticktext: ['0', '0.3', '0.7', '1']
+                },
+                hovermode: 'x unified',
+                template: 'plotly_white',
+                height: 500,
+                margin: {
+                    l: 50,
+                    r: 50,
+                    t: 80,
+                    b: 50
+                },
+                legend: {
+                    orientation: 'h',
+                    yanchor: 'bottom',
+                    y: 1.02,
+                    xanchor: 'right',
+                    x: 1
+                }
+            };
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Create plot
+            Plotly.newPlot(container, plotData, layout);
+        }
+
+        // Render forecast plot
+        function renderForecastPlot(container, historicalDates, historicalValues, forecastDates, forecastValues, title, riskType) {
+            // Create plot data
+            const historicalData = {
+                x: historicalDates,
+                y: historicalValues,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Historical Data',
+                line: {
+                    color: getColorForRiskType(riskType),
+                    width: 2
+                },
+                marker: {
+                    size: 6,
+                    color: getColorForRiskType(riskType)
+                }
+            };
+            
+            const forecastData = {
+                x: forecastDates,
+                y: forecastValues,
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Forecast',
+                line: {
+                    color: 'black',
+                    width: 2,
+                    dash: 'dash'
+                },
+                marker: {
+                    size: 6,
+                    color: 'black',
+                    symbol: 'diamond'
+                }
+            };
+            
+            // Create layout
+            const layout = {
+                title: title,
+                xaxis: {
+                    title: 'Date',
+                    rangeslider: {
+                        visible: true
+                    }
+                },
+                yaxis: {
+                    title: 'Risk Level',
+                    range: [0, 1],
+                    tickvals: [0, 0.3, 0.7, 1],
+                    ticktext: ['0', '0.3', '0.7', '1']
+                },
+                shapes: [
+                    {
+                        type: 'rect',
+                        xref: 'paper',
+                        yref: 'y',
+                        x0: 0,
+                        y0: 0,
+                        x1: 1,
+                        y1: 0.3,
+                        fillcolor: 'rgba(16, 185, 129, 0.1)',
+                        line: {
+                            width: 0
+                        }
+                    },
+                    {
+                        type: 'rect',
+                        xref: 'paper',
+                        yref: 'y',
+                        x0: 0,
+                        y0: 0.3,
+                        x1: 1,
+                        y1: 0.7,
+                        fillcolor: 'rgba(245, 158, 11, 0.1)',
+                        line: {
+                            width: 0
+                        }
+                    },
+                    {
+                        type: 'rect',
+                        xref: 'paper',
+                        yref: 'y',
+                        x0: 0,
+                        y0: 0.7,
+                        x1: 1,
+                        y1: 1,
+                        fillcolor: 'rgba(239, 68, 68, 0.1)',
+                        line: {
+                            width: 0
+                        }
+                    },
+                    {
+                        type: 'line',
+                        xref: 'x',
+                        yref: 'paper',
+                        x0: historicalDates[historicalDates.length - 1],
+                        y0: 0,
+                        x1: historicalDates[historicalDates.length - 1],
+                        y1: 1,
+                        line: {
+                            color: 'gray',
+                            width: 1
+                        }
+                    }
+                ],
+                annotations: [
+                    {
+                        x: 1,
+                        y: 0.15,
+                        xref: 'paper',
+                        yref: 'y',
+                        text: 'Low Risk',
+                        showarrow: false,
+                        font: {
+                            color: 'rgba(16, 185, 129, 0.8)'
+                        }
+                    },
+                    {
+                        x: 1,
+                        y: 0.5,
+                        xref: 'paper',
+                        yref: 'y',
+                        text: 'Medium Risk',
+                        showarrow: false,
+                        font: {
+                            color: 'rgba(245, 158, 11, 0.8)'
+                        }
+                    },
+                    {
+                        x: 1,
+                        y: 0.85,
+                        xref: 'paper',
+                        yref: 'y',
+                        text: 'High Risk',
+                        showarrow: false,
+                        font: {
+                            color: 'rgba(239, 68, 68, 0.8)'
+                        }
+                    },
+                    {
+                        x: historicalDates[historicalDates.length - 1],
+                        y: 1,
+                        xref: 'x',
+                        yref: 'paper',
+                        text: 'Forecast Start',
+                        showarrow: false,
+                        textangle: -90,
+                        yanchor: 'top',
+                        font: {
+                            color: 'gray'
+                        }
+                    }
+                ],
+                hovermode: 'x unified',
+                template: 'plotly_white',
+                height: 500,
+                margin: {
+                    l: 50,
+                    r: 50,
+                    t: 80,
+                    b: 50
+                },
+                legend: {
+                    orientation: 'h',
+                    yanchor: 'bottom',
+                    y: 1.02,
+                    xanchor: 'right',
+                    x: 1
+                }
+            };
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Create plot
+            Plotly.newPlot(container, [historicalData, forecastData], layout);
+        }
+
+        // Render seasonal analysis plot
+        function renderSeasonalPlot(container, months, monthlyValues, seasons, seasonalValues, title, riskType) {
+            // Create plot data
+            const monthlyData = {
+                x: months,
+                y: monthlyValues,
+                type: 'bar',
+                name: 'Monthly Average',
+                marker: {
+                    color: getColorForRiskType(riskType)
+                }
+            };
+            
+            const seasonColors = {
+                'Winter': '#00bcd4',  // Cyan
+                'Spring': '#4caf50',  // Green
+                'Summer': '#ff9800',  // Orange
+                'Fall': '#795548'     // Brown
+            };
+            
+            const seasonalData = {
+                x: seasons,
+                y: seasonalValues,
+                type: 'bar',
+                name: 'Seasonal Average',
+                marker: {
+                    color: seasons.map(season => seasonColors[season] || getColorForRiskType(riskType))
+                }
+            };
+            
+            // Create layout
+            const layout = {
+                title: title,
+                grid: {
+                    rows: 1,
+                    columns: 2,
+                    pattern: 'independent'
+                },
+                annotations: [
+                    {
+                        text: 'Monthly Average Risk',
+                        showarrow: false,
+                        x: 0.25,
+                        y: 1.1,
+                        xref: 'paper',
+                        yref: 'paper',
+                        font: {
+                            size: 14
+                        }
+                    },
+                    {
+                        text: 'Seasonal Average Risk',
+                        showarrow: false,
+                        x: 0.75,
+                        y: 1.1,
+                        xref: 'paper',
+                        yref: 'paper',
+                        font: {
+                            size: 14
+                        }
+                    }
+                ],
+                xaxis: {
+                    domain: [0, 0.45]
+                },
+                yaxis: {
+                    title: 'Risk Level',
+                    range: [0, 1],
+                    tickvals: [0, 0.3, 0.7, 1],
+                    ticktext: ['0', '0.3', '0.7', '1']
+                },
+                xaxis2: {
+                    domain: [0.55, 1]
+                },
+                yaxis2: {
+                    title: 'Risk Level',
+                    range: [0, 1],
+                    tickvals: [0, 0.3, 0.7, 1],
+                    ticktext: ['0', '0.3', '0.7', '1'],
+                    anchor: 'x2'
+                },
+                template: 'plotly_white',
+                height: 400,
+                margin: {
+                    l: 50,
+                    r: 50,
+                    t: 80,
+                    b: 50
+                },
+                showlegend: false
+            };
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Create plot
+            Plotly.newPlot(container, [
+                {...monthlyData, xaxis: 'x', yaxis: 'y'},
+                {...seasonalData, xaxis: 'x2', yaxis: 'y2'}
+            ], layout);
+        }
+
+        // Render weather correlation plot
+        function renderWeatherCorrelationPlot(container, correlations, title, riskType) {
+            // Prepare data
+            const factors = Object.keys(correlations);
+            const values = Object.values(correlations);
+            
+            // Create colors based on correlation values (positive = blue, negative = red)
+            const colors = values.map(v => v >= 0 ? '#2196f3' : '#f44336');
+            
+            // Create plot data
+            const plotData = {
+                x: factors,
+                y: values,
+                type: 'bar',
+                marker: {
+                    color: colors
+                },
+                text: values.map(v => v.toFixed(2)),
+                textposition: 'auto'
+            };
+            
+            // Create layout
+            const layout = {
+                title: title,
+                xaxis: {
+                    title: 'Weather Factor'
+                },
+                yaxis: {
+                    title: 'Correlation Coefficient',
+                    range: [-1, 1],
+                    tickvals: [-1, -0.5, 0, 0.5, 1],
+                    ticktext: ['-1', '-0.5', '0', '0.5', '1']
+                },
+                shapes: [
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        yref: 'y',
+                        x0: 0,
+                        y0: 0,
+                        x1: 1,
+                        y1: 0,
+                        line: {
+                            color: 'gray',
+                            width: 1
+                        }
+                    },
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        yref: 'y',
+                        x0: 0,
+                        y0: 0.7,
+                        x1: 1,
+                        y1: 0.7,
+                        line: {
+                            color: 'green',
+                            width: 1,
+                            dash: 'dash'
+                        }
+                    },
+                    {
+                        type: 'line',
+                        xref: 'paper',
+                        yref: 'y',
+                        x0: 0,
+                        y0: -0.7,
+                        x1: 1,
+                        y1: -0.7,
+                        line: {
+                            color: 'red',
+                            width: 1,
+                            dash: 'dash'
+                        }
+                    }
+                ],
+                annotations: [
+                    {
+                        x: 1,
+                        y: 0.7,
+                        xref: 'paper',
+                        yref: 'y',
+                        text: 'Strong Positive',
+                        showarrow: false,
+                        font: {
+                            color: 'green'
+                        }
+                    },
+                    {
+                        x: 1,
+                        y: -0.7,
+                        xref: 'paper',
+                        yref: 'y',
+                        text: 'Strong Negative',
+                        showarrow: false,
+                        font: {
+                            color: 'red'
+                        }
+                    }
+                ],
+                template: 'plotly_white',
+                height: 400,
+                margin: {
+                    l: 50,
+                    r: 50,
+                    t: 80,
+                    b: 50
+                }
+            };
+            
+            // Clear container
+            container.innerHTML = '';
+            
+            // Create plot
+            Plotly.newPlot(container, [plotData], layout);
+        }
+
+        // Update forecast information
+        function updateForecastInfo(historicalValues, forecastValues) {
+            // Get current and forecasted risk levels
+            const currentValue = historicalValues[historicalValues.length - 1];
+            const forecastedValue = forecastValues[forecastValues.length - 1];
+            const change = forecastedValue - currentValue;
+            
+            // Update current risk level
+            currentRiskLevel.innerHTML = `${getRiskBadge(currentValue)} (${currentValue.toFixed(2)})`;
+            
+            // Update forecasted risk level
+            forecastedRiskLevel.innerHTML = `${getRiskBadge(forecastedValue)} (${forecastedValue.toFixed(2)})`;
+            
+            // Update risk change
+            const changeText = change >= 0 ? `+${change.toFixed(2)}` : `${change.toFixed(2)}`;
+            const changeClass = change > 0.05 ? 'text-danger' : 
+                              change < -0.05 ? 'text-success' : 
+                              'text-muted';
+            
+            riskChange.innerHTML = `<span class="${changeClass}">${changeText}</span>`;
+        }
+
+        // Update seasonal information
+        function updateSeasonalInfo(monthlyAnalysis, seasonalAnalysis) {
+            // Find highest risk month
+            const monthValues = monthlyAnalysis.values;
+            const maxMonthIndex = monthValues.indexOf(Math.max(...monthValues));
+            const maxMonth = monthlyAnalysis.months[maxMonthIndex];
+            const maxMonthValue = monthValues[maxMonthIndex];
+            
+            // Find highest risk season
+            const seasonValues = seasonalAnalysis.values;
+            const maxSeasonIndex = seasonValues.indexOf(Math.max(...seasonValues));
+            const maxSeason = seasonalAnalysis.seasons[maxSeasonIndex];
+            const maxSeasonValue = seasonValues[maxSeasonIndex];
+            
+            // Update highest risk month
+            highestRiskMonth.innerHTML = `${maxMonth} ${getRiskBadge(maxMonthValue)} (${maxMonthValue.toFixed(2)})`;
+            
+            // Update highest risk season
+            highestRiskSeason.innerHTML = `${maxSeason} ${getRiskBadge(maxSeasonValue)} (${maxSeasonValue.toFixed(2)})`;
+        }
+
+        // Update weather correlation information
+        function updateWeatherCorrelationInfo(mostInfluentialFactor) {
+            // Format factor name
+            const factorName = mostInfluentialFactor.factor
+                .split('_')
+                .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+                .join(' ');
+            
+            // Get correlation value
+            const correlationValue = mostInfluentialFactor.correlation;
+            
+            // Update most influential factor
+            mostInfluentialFactor.innerHTML = `<strong>${factorName}</strong>`;
+            
+            // Update correlation strength
+            const absCorrelation = Math.abs(correlationValue);
+            let strengthText, strengthClass;
+            
+            if (absCorrelation < 0.3) {
+                strengthText = 'Weak';
+                strengthClass = 'text-muted';
+            } else if (absCorrelation < 0.7) {
+                strengthText = 'Moderate';
+                strengthClass = 'text-primary';
+            } else {
+                strengthText = 'Strong';
+                strengthClass = 'text-success';
+            }
+            
+            const directionText = correlationValue >= 0 ? 'Positive' : 'Negative';
+            
+            correlationStrength.innerHTML = `<span class="${strengthClass}">${strengthText} ${directionText}</span> (${correlationValue.toFixed(2)})`;
+        }
+
+        // Update correlation table
+        function updateCorrelationTable(correlations) {
+            // Get table cells
+            const cells = correlationTable.querySelectorAll('tbody td');
+            
+            // Reset cells
+            cells.forEach(cell => {
+                cell.textContent = '-';
+                cell.className = '';
+            });
+            
+            // Update cells with correlation values
+            for (const [key, value] of Object.entries(correlations)) {
+                const [factor1, factor2] = key.split('_vs_');
+                
+                // Find the corresponding cell
+                const rowIndex = getRowIndex(factor1);
+                const colIndex = getColIndex(factor2);
+                
+                if (rowIndex !== -1 && colIndex !== -1) {
+                    const cellIndex = rowIndex * 6 + colIndex;
+                    if (cells[cellIndex]) {
+                        cells[cellIndex].textContent = value.toFixed(2);
+                        
+                        // Add color based on correlation strength
+                        const absValue = Math.abs(value);
+                        if (absValue > 0.7) {
+                            cells[cellIndex].className = value >= 0 ? 'table-success' : 'table-danger';
+                        } else if (absValue > 0.3) {
+                            cells[cellIndex].className = value >= 0 ? 'table-info' : 'table-warning';
+                        }
+                    }
+                }
+            }
+        }
+
+        // Helper function to get row index for correlation table
+        function getRowIndex(factor) {
+            const factors = ['drought', 'flood', 'frost', 'pest', 'overall'];
+            return factors.indexOf(factor);
+        }
+
+        // Helper function to get column index for correlation table
+        function getColIndex(factor) {
+            const factors = ['drought', 'flood', 'frost', 'pest', 'overall'];
+            return factors.indexOf(factor) + 1;  // +1 because first column is the row header
+        }
+
+        // Helper function to get color for risk type
+        function getColorForRiskType(riskType) {
+            const colorMap = {
+                'drought': '#ff9800',  // Orange
+                'flood': '#2196f3',    // Blue
+                'frost': '#00bcd4',    // Cyan
+                'pest': '#9c27b0',     // Purple
+                'overall': '#f44336'   // Red
+            };
+            
+            return colorMap[riskType] || '#f44336';
+        }
+
+        // Helper function to get risk badge HTML
+        function getRiskBadge(value) {
+            let badgeClass, badgeText;
+            
+            if (value < 0.3) {
+                badgeClass = 'risk-low';
+                badgeText = 'Low';
+            } else if (value < 0.7) {
+                badgeClass = 'risk-medium';
+                badgeText = 'Medium';
+            } else {
+                badgeClass = 'risk-high';
+                badgeText = 'High';
+            }
+            
+            return `<span class="risk-badge ${badgeClass}">${badgeText}</span>`;
+        }
+
+        // Helper function to format date as YYYY-MM-DD
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // Helper function to show loading spinner
+        function showLoading(container) {
+            container.innerHTML = `
+                <div class="loading">
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Helper function to show error message
+        function showError(message, container = null) {
+            if (container) {
+                container.innerHTML = `
+                    <div class="alert alert-danger m-3" role="alert">
+                        <i class="fas fa-exclamation-triangle me-2"></i> ${message}
+                    </div>
+                `;
+            } else {
+                alert(message);
+            }
+        }
+
+        // Helper function to download plot as image
+        function downloadPlot(containerId, filename) {
+            const container = document.getElementById(containerId);
+            
+            if (container) {
+                Plotly.downloadImage(container, {
+                    format: 'png',
+                    width: 1200,
+                    height: 800,
+                    filename: `${filename}_${formatDate(new Date())}`
+                });
+            }
+        }
+        
+        // Helper function to capitalize a string
+        function capitalize(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+    </script>
+</body>
+</html>

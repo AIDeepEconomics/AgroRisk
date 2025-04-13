@@ -1,0 +1,36 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Logs
+*.log
+app_*.log
+
+# Flask instance folder
+instance/
+
+# Environment variables
+.env
+.venv
+env/
+venv/
+ENV/
+
+# Database files
+*.db
+*.sqlite
+
+# IDE specific files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# Excel and CSV exports (if not needed in version control)
+# *.xlsx
+# *.csv
+
+# OS specific files
+.DS_Store
+Thumbs.db
